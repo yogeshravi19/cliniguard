@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLINIGUARD — Clinical Hallucination Guardrail</title>
+    <meta name="description" content="A multi-signal AI safety guardrail that detects hallucinations and unsafe content in LLM-generated medical answers.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(22, 27, 34, 0.45);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --primary-accent: #3b82f6; /* Modern Blue */
+            --teal-accent: #06b6d4; /* Teal */
+            --green-safe: #10b981; /* Green */
+            --amber-warn: #f59e0b; /* Amber */
+            --red-hazard: #ef4444; /* Red */
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at 80% 10%, #1e293b, var(--bg-color) 60%);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1, h2, h3, h4, .font-display {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        header {
+            border-bottom: 1px solid var(--card-border);
+            background: rgba(11, 15, 25, 0.8);
+            backdrop-filter: blur(12px);
+            padding: 1.25rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 2.25rem;
+            height: 2.25rem;
+            background: linear-gradient(135deg, var(--teal-accent), var(--primary-accent));
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            background: linear-gradient(to right, #fff, #93c5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: var(--teal-accent);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-top: -0.2rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn.active {
+            color: #fff;
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.15);
+        }
+
+        main {
+            flex: 1;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        /* ─────────────────────────────────────────────────────────────
+           TAB 1: LIVE EVALUATOR
+           ───────────────────────────────────────────────────────────── */
+        .evaluator-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .evaluator-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 1rem;
+            padding: 1.75rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .card-header {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-control {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--card-border);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            transition: var(--transition);
+            resize: vertical;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, var(--teal-accent), var(--primary-accent));
+            color: #fff;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.9rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 14px rgba(6, 182, 212, 0.3);
+            transition: var(--transition);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        /* ── OUTPUT SECTION ── */
+        .output-card {
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .gauge-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .risk-badge {
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 0.4rem 1rem;
+            border-radius: 9999px;
+            margin-top: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-block;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .badge-green {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--green-safe);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .badge-amber {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--amber-warn);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        .badge-red {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--red-hazard);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+
+        .score-circle {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .score-circle svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .score-circle circle {
+            fill: none;
+            stroke-width: 8;
+        }
+
+        .score-circle .circle-bg {
+            stroke: rgba(255, 255, 255, 0.05);
+        }
+
+        .score-circle .circle-progress {
+            stroke: var(--primary-accent);
+            stroke-linecap: round;
+            stroke-dasharray: 440;
+            stroke-dashoffset: 440;
+            transition: stroke-dashoffset 0.8s ease-out;
+        }
+
+        .score-text {
+            position: absolute;
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .score-percent {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        /* ── HIGHLIGHTER ── */
+        .highlight-container {
+            border: 1px solid var(--card-border);
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            min-height: 120px;
+            line-height: 1.7;
+            font-size: 0.95rem;
+            white-space: pre-wrap;
+        }
+
+        .highlight-legend {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            color: var(--text-muted);
+        }
+
+        .legend-color {
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 0.2rem;
+            display: inline-block;
+        }
+
+        /* Highlight classes */
+        .hl-drug {
+            background: rgba(59, 130, 246, 0.25);
+            border-bottom: 2px solid var(--primary-accent);
+            color: #93c5fd;
+            padding: 0 0.15rem;
+            font-weight: 500;
+        }
+
+        .hl-context {
+            background: rgba(245, 158, 11, 0.25);
+            border-bottom: 2px solid var(--amber-warn);
+            color: #fde047;
+            padding: 0 0.15rem;
+            font-weight: 500;
+        }
+
+        .hl-uncertain {
+            background: rgba(239, 68, 68, 0.25);
+            border-bottom: 2px solid var(--red-hazard);
+            color: #fca5a5;
+            padding: 0 0.15rem;
+            font-weight: 500;
+        }
+
+        /* ── SIGNALS GRID ── */
+        .signals-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .signal-item {
+            background: rgba(15, 23, 42, 0.3);
+            border: 1px solid var(--card-border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .signal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .signal-title {
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .signal-val {
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--primary-accent);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .signal-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* ─────────────────────────────────────────────────────────────
+           TAB 2: PRESET LIBRARY
+           ───────────────────────────────────────────────────────────── */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .preset-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .preset-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .preset-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.1);
+        }
+
+        .preset-badge-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preset-tag {
+            font-size: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            padding: 0.25rem 0.6rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+        }
+
+        .preset-preview-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .preset-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* ─────────────────────────────────────────────────────────────
+           TAB 3: INSIGHTS & FORMULAS
+           ───────────────────────────────────────────────────────────── */
+        .insights-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .formula-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .formula-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .formula-card {
+            background: rgba(15, 23, 42, 0.3);
+            border: 1px solid var(--card-border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+
+        .formula-math {
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.75rem;
+            border-radius: 0.35rem;
+            margin: 0.75rem 0;
+            color: var(--teal-accent);
+            font-size: 0.95rem;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .weights-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        @media (max-width: 640px) {
+            .weights-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .weight-card {
+            background: rgba(59, 130, 246, 0.05);
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .weight-num {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-accent);
+            margin-bottom: 0.25rem;
+        }
+
+        .weight-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* ── TABLE STYLING ── */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 0.5rem;
+            border: 1px solid var(--card-border);
+            background: rgba(15, 23, 42, 0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: rgba(15, 23, 42, 0.6);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 1rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: var(--text-main);
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            margin-top: auto;
+            border-top: 1px solid var(--card-border);
+            padding: 1.5rem 2rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            background: rgba(11, 15, 25, 0.8);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .footer-link {
+            color: var(--teal-accent);
+            text-decoration: none;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <div class="logo-icon">C</div>
+            <div>
+                <div class="logo-text">CLINIGUARD</div>
+                <div class="logo-subtitle">Hallucination Guardrail</div>
+            </div>
+        </div>
+        <nav class="nav-tabs" role="tablist">
+            <button class="tab-btn active" id="btn-evaluator" onclick="switchTab('evaluator')" role="tab" aria-selected="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Live Evaluator
+            </button>
+            <button class="tab-btn" id="btn-presets" onclick="switchTab('presets')" role="tab" aria-selected="false">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5"/></svg>
+                Preset Library
+            </button>
+            <button class="tab-btn" id="btn-insights" onclick="switchTab('insights')" role="tab" aria-selected="false">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zm20 0h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                Model Insights
+            </button>
+        <button class="tab-btn" id="btn-research" onclick="switchTab('research')" role="tab" aria-selected="false">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M9 5h6a3 3 0 0 1 0 6H9V5z"/></svg>
+    Research Overview
+</button>
+</nav>
+    </header>
+
+    <main>
+        <!-- TAB 1: LIVE CLINIGUARD EVALUATOR -->
+        <section id="tab-evaluator" class="tab-content active" role="tabpanel" aria-labelledby="btn-evaluator">
+            <div class="evaluator-grid">
+                <!-- Inputs Glass Card -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4z"/></svg>
+                            Clinical Input Analyzer
+                        </h2>
+                        <span class="preset-tag" style="background: rgba(59, 130, 246, 0.1); color: var(--primary-accent);">Single forward pass</span>
+                    </div>
+
+                    <form id="evaluator-form" onsubmit="runPrediction(event)">
+                        <div class="form-group">
+                            <label for="input-question" class="form-label">User / Clinician Question</label>
+                            <input type="text" id="input-question" class="form-control" placeholder="e.g. Can we prescribe amoxicillin to this patient who is allergic to penicillin?" required value="Is ibuprofen effective for fever reduction in pediatric patients?">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="input-context" class="form-label">Retrieved Supporting Context (Abstracts, patient charts, vitals)</label>
+                            <textarea id="input-context" class="form-control" placeholder="e.g. Patient history reveals severe allergic reaction to penicillin..." required>A randomized controlled trial of fever management in pediatric patients showed that ibuprofen at 10 mg/kg significantly reduced body temperature compared to placebo.</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="input-answer" class="form-label">LLM-Generated Answer to Validate</label>
+                            <textarea id="input-answer" class="form-control" style="min-height: 120px;" placeholder="e.g. The patient should be given amoxicillin tablet orally..." required>Yes, clinical trials indicate that ibuprofen is a safe and effective medication for fever reduction in children. The recommended dose is 10 mg/kg administered orally.</textarea>
+                        </div>
+
+                        <button type="submit" id="submit-btn" class="btn-submit">
+                            Evaluate Safety
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Outputs Glass Card -->
+                <div class="glass-card output-card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg>
+                            Guardrail Verdict
+                        </h2>
+                    </div>
+
+                    <!-- Risk Gauge Meter -->
+                    <div class="gauge-panel">
+                        <div class="score-circle">
+                            <svg>
+                                <circle class="circle-bg" cx="70" cy="70" r="60"></circle>
+                                <circle class="circle-progress" id="risk-gauge" cx="70" cy="70" r="60"></circle>
+                            </svg>
+                            <div class="score-text">
+                                <span id="risk-score-value">0.00</span>
+                                <span class="score-percent">score</span>
+                            </div>
+                        </div>
+                        <div id="risk-badge" class="risk-badge badge-green">Green (Safe)</div>
+                    </div>
+
+                    <!-- Highlighter Panel -->
+                    <div>
+                        <span class="form-label">Explainable Word Highlighting</span>
+                        <div class="highlight-container" id="highlight-box">
+                            The analyzed answer will appear here with highlighted terms explaining the model's flags.
+                        </div>
+                        <div class="highlight-legend">
+                            <div class="legend-item"><span class="legend-color hl-drug"></span>Drug/Dosage terms</div>
+                            <div class="legend-item"><span class="legend-color hl-context"></span>Context/Patient terms</div>
+                            <div class="legend-item"><span class="legend-color hl-uncertain"></span>Uncertainty/Hedge words</div>
+                        </div>
+                    </div>
+
+                    <!-- Signals Breakdown Grid -->
+                    <div>
+                        <span class="form-label">Signal Breakdown</span>
+                        <div class="signals-grid">
+                            <!-- Signal 1 -->
+                            <div class="signal-item">
+                                <div class="signal-header">
+                                    <span class="signal-title">1. Med-ISP</span>
+                                    <span class="signal-val" id="sig-val-isp">0.00</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar-fill" id="sig-bar-isp"></div>
+                                </div>
+                                <span class="signal-desc">Drug term density check. Higher is riskier (drug term absence).</span>
+                            </div>
+
+                            <!-- Signal 2 -->
+                            <div class="signal-item">
+                                <div class="signal-header">
+                                    <span class="signal-title">2. C-AAS</span>
+                                    <span class="signal-val" id="sig-val-aas">0.00</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar-fill" id="sig-bar-aas"></div>
+                                </div>
+                                <span class="signal-desc">Context attention density. Higher is riskier (ignoring vitals/allergy context).</span>
+                            </div>
+
+                            <!-- Signal 3 -->
+                            <div class="signal-item">
+                                <div class="signal-header">
+                                    <span class="signal-title">3. Med-EEM</span>
+                                    <span class="signal-val" id="sig-val-eem">0.00</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar-fill" id="sig-bar-eem"></div>
+                                </div>
+                                <span class="signal-desc">Shannon entropy monitor. Vague/uncertain answer words increase risk.</span>
+                            </div>
+
+                            <!-- Signal 4 -->
+                            <div class="signal-item">
+                                <div class="signal-header">
+                                    <span class="signal-title">4. CDT</span>
+                                    <span class="signal-val" id="sig-val-cdt">0.00</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar-fill" id="sig-bar-cdt"></div>
+                                </div>
+                                <span class="signal-desc">Drift tracker. Cosine drift between question and answer word frequencies.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: PRESET LIBRARY -->
+        <section id="tab-presets" class="tab-content" role="tabpanel" aria-labelledby="btn-presets">
+            <h2 style="margin-bottom: 1rem;">Hugging Face & Fallback Preset Examples</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Click on any preset below to instantly load it into the live evaluator, run predictions, and visual checks.</p>
+            
+            <div class="preset-grid" id="presets-container">
+                <!-- Cards will be dynamically inserted here -->
+            </div>
+        </section>
+
+        <!-- TAB 3: INSIGHTS & FORMULAS -->
+        <section id="tab-insights" class="tab-content" role="tabpanel" aria-labelledby="btn-insights">
+            <div class="insights-container">
+                <div class="glass-card">
+                    <h2 style="margin-bottom: 1rem;">Fusion Architecture Formulas</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+                        CLINIGUARD runs a single-pass inference that extracts 4 distinct NLP signals and combines them using a task-conditional fusion model.
+                    </p>
+
+                    <div class="formula-grid">
+                        <div class="formula-card">
+                            <h3>🔵 Signal 1 — Med-ISP (Medical Info State Probe)</h3>
+                            <div class="formula-math">Med-ISP = 1.0 - min(drug_term_hits / (word_count * 0.05), 1.0)</div>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                Ensures clinical safety by verifying that responses include necessary therapeutic drug terminology.
+                            </p>
+                        </div>
+
+                        <div class="formula-card">
+                            <h3>🟠 Signal 2 — C-AAS (Clinical Attention Alignment)</h3>
+                            <div class="formula-math">C-AAS = 1.0 - min(context_term_hits / (word_count * 0.04), 1.0)</div>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                Measures focus on clinical context terms (e.g. allergies, weight, patient history) to prevent omission errors.
+                            </p>
+                        </div>
+
+                        <div class="formula-card">
+                            <h3>🔴 Signal 3 — Med-EEM (Entropy-Energy Monitor)</h3>
+                            <div class="formula-math">
+                                p = uncertain_word_hits / word_count<br>
+                                H(p) = -p*log2(p) - (1-p)*log2(1-p)<br>
+                                Med-EEM = min(H(p) * (1 + p), 1.0)
+                            </div>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                Binary Shannon Entropy calculation of uncertainty. High density of hedging words ("maybe", "could be") increases entropy and risk score.
+                            </p>
+                        </div>
+
+                        <div class="formula-card">
+                            <h3>🟡 Signal 4 — CDT (Clinical Drift Tracker)</h3>
+                            <div class="formula-math">CDT = 1.0 - CosineSimilarity(vector_q, vector_a)</div>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                Tracks topical drift. High cosine similarity between the frequency vectors of Question (Q) and Answer (A) yields low drift risk.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <h2 style="margin-bottom: 1rem;">Task-Conditional Weights</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+                        Different clinical tasks require different prioritization. For instance, allergy checking prioritizes context attendance (C-AAS), while drug dosing prioritizes precision / certainty (Med-EEM).
+                    </p>
+
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Task Type</th>
+                                    <th>Med-ISP (α)</th>
+                                    <th>C-AAS (β)</th>
+                                    <th>Med-EEM (γ)</th>
+                                    <th>CDT (δ)</th>
+                                    <th>Primary Risk Factor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Drug Dosing</strong></td>
+                                    <td>0.20</td>
+                                    <td>0.20</td>
+                                    <td style="color: var(--teal-accent); font-weight: bold;">0.45</td>
+                                    <td>0.15</td>
+                                    <td>Hedging, vagueness, or uncertain dosing instruction</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Allergy Checking</strong></td>
+                                    <td>0.15</td>
+                                    <td style="color: var(--teal-accent); font-weight: bold;">0.50</td>
+                                    <td>0.20</td>
+                                    <td>0.15</td>
+                                    <td>Failure to attend to documented patient allergies</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>General Diagnosis</strong></td>
+                                    <td>0.20</td>
+                                    <td>0.15</td>
+                                    <td>0.15</td>
+                                    <td style="color: var(--teal-accent); font-weight: bold;">0.50</td>
+                                    <td>Drifting off-topic or answering unrelated query</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <h2 style="margin-bottom: 1rem;">Ablation Study (Why All 4 Combined Wins)</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+                        Evaluating each feature alone on the unified model compared to fusing all 4 features highlights the performance improvement.
+                    </p>
+
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Signal Configuration</th>
+                                    <th>AUROC Score</th>
+                                    <th>Delta vs. Fusion Baseline</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Med-ISP Only</td>
+                                    <td>0.6250</td>
+                                    <td style="color: var(--red-hazard);">-0.1049</td>
+                                    <td>Deficient</td>
+                                </tr>
+                                <tr>
+                                    <td>C-AAS Only</td>
+                                    <td>0.6434</td>
+                                    <td style="color: var(--red-hazard);">-0.0865</td>
+                                    <td>Deficient</td>
+                                </tr>
+                                <tr>
+                                    <td>Med-EEM Only</td>
+                                    <td>0.5944</td>
+                                    <td style="color: var(--red-hazard);">-0.1355</td>
+                                    <td>Deficient</td>
+                                </tr>
+                                <tr>
+                                    <td>CDT Only</td>
+                                    <td>0.4702</td>
+                                    <td style="color: var(--red-hazard);">-0.2597</td>
+                                    <td>Deficient</td>
+                                </tr>
+                                <tr style="background: rgba(16, 185, 129, 0.1);">
+                                    <td><strong>All 4 Signals Fused (Unified Model)</strong></td>
+                                    <td style="color: var(--green-safe); font-weight: bold;">0.7299</td>
+                                    <td>Baseline</td>
+                                    <td style="color: var(--green-safe); font-weight: bold;">Best ✅</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- TAB 4: RESEARCH OVERVIEW -->
+        <section id="tab-research" class="tab-content" role="tabpanel" aria-labelledby="btn-research">
+            <div class="glass-card">
+                <h2 style="margin-bottom: 1rem;">Research Overview</h2>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+                    This panel summarizes the datasets, models, and evaluation metrics that power the CLINIGUARD system.
+                </p>
+                <h3 style="margin-top: 1rem; margin-bottom: 0.5rem;">Datasets Used</h3>
+                <ul style="color: var(--text-main); margin-left: 1.5rem;">
+                    <li>MedHall Bench – <code>medhall_bench.parquet</code> (clinical Q&A benchmark)</li>
+                    <li>Additional curated clinical QA datasets (e.g., MedQA, PubMedQA) – integrated during training</li>
+                </ul>
+                <h3 style="margin-top: 1rem; margin-bottom: 0.5rem;">Trained Models</h3>
+                <ul style="color: var(--text-main); margin-left: 1.5rem;">
+                    <li>Unified Fusion Model (LLM + 4 signal fusion)</li>
+                    <li>Task‑conditional heads for Drug Dosing, Allergy Checking, and General Diagnosis</li>
+                </ul>
+                <h3 style="margin-top: 1rem; margin-bottom: 0.5rem;">Evaluation Metrics & Formulas</h3>
+                <p style="color: var(--text-muted);">Risk scores are computed from the four signal formulas (Med‑ISP, C‑AAS, Med‑EEM, CDT) and combined using the task‑conditional weights shown in the Insights tab.</p>
+                <h3 style="margin-top: 1rem; margin-bottom: 0.5rem;">Disclaimer</h3>
+                <p style="color: var(--amber-warn); font-weight: 500;">
+                    The displayed numbers are derived from the training dataset and are not real‑time clinical data. Always verify against up‑to‑date guidelines before acting on model output.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div>CLINIGUARD Clinical Hallucination Guardrail — Python 3.13 Capstone Project</div>
+        <div class="footer-links">
+            <a href="file:///c:/Users/ACER/OneDrive/Desktop/cliniguard/PROJECT_OVERVIEW.md" class="footer-link">Project Overview</a>
+            <a href="file:///c:/Users/ACER/OneDrive/Desktop/cliniguard/FINAL_RESULTS.md" class="footer-link">Final Results Snapshot</a>
+            <a href="file:///c:/Users/ACER/OneDrive/Desktop/cliniguard/dataset_overview.md" class="footer-link">Dataset Schema Monograph</a>
+        </div>
+    </footer>
+
+    <script>
+        const API_BASE = "http://localhost:5000";
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('active');
+                el.setAttribute('aria-selected', 'false');
+            });
+
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            
+            let activeBtn;
+            if (tabId === 'evaluator') activeBtn = document.getElementById('btn-evaluator');
+            else if (tabId === 'presets') activeBtn = document.getElementById('btn-presets');
+            else if (tabId === 'insights') activeBtn = document.getElementById('btn-insights');
+            
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                activeBtn.setAttribute('aria-selected', 'true');
+            }
+        }
+
+        // Run Prediction API Call
+        async function runPrediction(event) {
+            if (event) event.preventDefault();
+
+            const question = document.getElementById('input-question').value;
+            const context = document.getElementById('input-context').value;
+            const answer = document.getElementById('input-answer').value;
+            
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.innerHTML = '<span class="spinner"></span> Evaluating...';
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE}/predict`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question, context, answer })
+                });
+
+                if (!response.ok) throw new Error("API request failed");
+                const data = await response.json();
+                
+                updateUI(data);
+
+            } catch (err) {
+                alert("Could not connect to Cliniguard web server. Make sure server.py is running!");
+                console.error(err);
+            } finally {
+                submitBtn.innerHTML = 'Evaluate Safety';
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Update UI Dashboard with API values
+        function updateUI(data) {
+            const score = data.risk_score;
+            const label = data.label;
+            const signals = data.signals;
+
+            // Update score text
+            document.getElementById('risk-score-value').innerText = score.toFixed(4);
+            
+            // Update circular gauge
+            const circle = document.getElementById('risk-gauge');
+            const circumference = 2 * Math.PI * 60; // r=60 -> 376.99
+            const offset = circumference - (score * circumference);
+            circle.style.strokeDashoffset = offset;
+
+            // Set color code theme
+            let themeColor = 'var(--green-safe)';
+            let badgeClass = 'badge-green';
+            if (label === 'AMBER') {
+                themeColor = 'var(--amber-warn)';
+                badgeClass = 'badge-amber';
+            } else if (label === 'RED') {
+                themeColor = 'var(--red-hazard)';
+                badgeClass = 'badge-red';
+            }
+
+            // Set badge
+            const badge = document.getElementById('risk-badge');
+            badge.innerText = `${label} Risk`;
+            badge.className = `risk-badge ${badgeClass}`;
+            circle.style.stroke = themeColor;
+
+            // Update Signals progress bars & values
+            updateSignal('isp', signals.med_isp, themeColor);
+            updateSignal('aas', signals.c_aas, themeColor);
+            updateSignal('eem', signals.med_eem, themeColor);
+            updateSignal('cdt', signals.cdt, themeColor);
+
+            // Update Highlight Text Box
+            renderHighlights(data.tokens);
+        }
+
+        function updateSignal(id, val, color) {
+            document.getElementById(`sig-val-${id}`).innerText = val.toFixed(4);
+            const fill = document.getElementById(`sig-bar-${id}`);
+            fill.style.width = `${val * 100}%`;
+            fill.style.backgroundColor = color;
+        }
+
+        // Render color-coded word highlights
+        function renderHighlights(tokens) {
+            const box = document.getElementById('highlight-box');
+            box.innerHTML = '';
+
+            tokens.forEach(tok => {
+                const span = document.createElement('span');
+                span.innerText = tok.word + ' ';
+                
+                if (tok.role === 'drug') {
+                    span.className = 'hl-drug';
+                    span.title = 'Drug Term detected';
+                } else if (tok.role === 'context') {
+                    span.className = 'hl-context';
+                    span.title = 'Clinical Context term detected';
+                } else if (tok.role === 'uncertain') {
+                    span.className = 'hl-uncertain';
+                    span.title = 'Hedge/Uncertain word detected';
+                }
+                
+                box.appendChild(span);
+            });
+        }
+
+        // Load Preset Samples from API
+        async function loadPresets() {
+            try {
+                const response = await fetch(`${API_BASE}/samples`);
+                if (!response.ok) throw new Error("Could not load samples");
+                const samples = await response.json();
+
+                const container = document.getElementById('presets-container');
+                container.innerHTML = '';
+
+                samples.forEach(s => {
+                    const card = document.createElement('div');
+                    card.className = 'preset-card';
+                    card.onclick = () => selectPreset(s);
+
+                    let badgeClass = 'badge-green';
+                    if (s.expected_label.includes('RED')) badgeClass = 'badge-red';
+                    else if (s.expected_label.includes('AMBER')) badgeClass = 'badge-amber';
+
+                    card.innerHTML = `
+                        <div>
+                            <div class="preset-badge-row">
+                                <span class="preset-tag">${s.dataset}</span>
+                                <span class="risk-badge ${badgeClass}" style="margin: 0; font-size: 0.75rem;">Expected: ${s.expected_label}</span>
+                            </div>
+                            <h3 class="preset-preview-title" style="margin: 0.75rem 0 0.5rem 0;">${s.type}</h3>
+                            <p class="preset-desc"><strong>Q:</strong> ${s.question}</p>
+                            <p class="preset-desc" style="margin-top: 0.5rem; font-style: italic;"><strong>A:</strong> ${s.answer}</p>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                console.error("Error loading presets: ", err);
+            }
+        }
+
+        // Handle preset click
+        function selectPreset(s) {
+            document.getElementById('input-question').value = s.question;
+            document.getElementById('input-context').value = s.context;
+            document.getElementById('input-answer').value = s.answer;
+            switchTab('evaluator');
+            runPrediction();
+        }
+
+        // On Load
+        window.addEventListener('load', () => {
+            loadPresets();
+            // Run initial prediction with placeholders
+            runPrediction();
+        });
+    </script>
+</body>
+</html>

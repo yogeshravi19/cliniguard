@@ -1,0 +1,158 @@
+You are a senior medical‑AI researcher **and** a professional PowerPoint/UX designer.
+Your task is to generate a **single‑file interactive HTML slide deck** that can be opened in any web browser and presented instantly.
+
+The deck must have **14 slides** and must follow the visual guidelines below:
+
+* **Dark‑mode theme** – background `#0d1117`, card background `#161b22`.
+* **Primary accent (teal)** – `#58a6ff`.
+* **Critical alert (red)** – `#f85149`.
+* Use smooth fade transitions, left/right arrow navigation, and visible navigation buttons.
+* All tables and charts should be clean, modern, and responsive.
+* Do **not** create any external assets – everything (CSS & JS) must be inline.
+
+---
+### Slide‑by‑slide content (copy **exactly** – Claude will render it)
+
+#### Slide 1 – Title & Header
+```
+Title: CLINIGUARD – Multi‑Signal Fusion for Medical QA Verification
+Subtitle: Bridging the Search Gap & Benchmarking Hallucination Detection across Diverse Clinical Knowledge Bases
+Presenters: <Your Name(s)> – <Affiliation>
+Date: <Month Year>
+```
+
+#### Slide 2 – Abstract / Project Summary
+```
+Objective: Provide a unified safety guardrail that evaluates LLM‑generated medical answers against retrieved context before they reach clinicians or patients.
+The “Search Gap”: Mismatch between user query, retrieved documents, and generated answer → hallucinations or unsafe prescriptions.
+Solution: A lightweight, explainable 4‑signal fusion model (Logistic Regression) that scores risk in real‑time.
+```
+
+#### Slide 3 – Background: Clinical RAG Search Gap
+```
+• Retriever failures → missing or irrelevant evidence → LLM fills the void with fabricated facts.
+• Generator failures → ignores patient demographics (age, weight, allergies), drug‑dosage constraints, or safety warnings.
+• Consequence: Potential clinical harm, loss of trust, regulatory setbacks.
+```
+
+#### Slide 4 – Problem Statement (Unsafe & Demographically‑Unaware LLMs)
+```
+– Prescription of adult doses to pediatric patients.
+– Ignoring documented drug allergies.
+– Confidently stating unverified treatment options.
+These errors constitute the **search‑gap** that CLINIGUARD aims to close.
+```
+
+#### Slide 5 – Research Gaps in Existing Clinical QA
+```
+1️⃣ Single‑Source Bias – Prior work evaluates on a single dataset.
+2️⃣ Demographic Neglect – No explicit check of age, weight, allergies, vitals.
+3️⃣ English‑Only NLP – Bilingual (English‑Chinese) clinical notes are unsupported.
+4️⃣ Computational Cost – LLM‑as‑a‑judge is slow and expensive.
+```
+
+#### Slide 6 – Data Sources (Part 1 – Academic)
+| Dataset | Platform | Size (Rows) | Config / Split | Main Focus |
+|---|---|---|---|---|
+| **Med‑HALT** | Hugging Face | 4 916 | `IR_abstract2pubmedlink` | USMLE exam questions, real LLM hallucinations (real vs fake). |
+| **PubMedQA** | Hugging  Face | 1 000 | `pqa_labeled` | Expert‑labeled Q&A with clinical uncertainty (`yes/no/maybe`). |
+| **MedQuAD (HF)** | Hugging  Face | 47 441 | default split | NIH expert clinical Q&A (question, focus, answer). |
+| **MedHallu** | Hugging  Face | 1 000 | `pqa_labeled` | Graded hallucinations (easy/medium/hard). |
+
+#### Slide 7 – Data Sources (Part 2 – Clinical & Bilingual)
+| Dataset | Platform | Size (Rows) | Content |
+|---|---|---|---|
+| **MedHall‑Bench** | HF Raw JSONL | 54 (27 factual + 27 contextual) | English‑Chinese bilingual QA, factual vs. contextual hallucinations. |
+| **MedQuAD (XML)** | GitHub | 42 | NIH disease monographs parsed from XML (focus, Q/A). |
+
+#### Slide 8 – Dataset Summary Table (to be rendered as a chart)
+```
+| Dataset | Source | Rows | Label Type | Notes |
+|---|---|---|---|---|
+| Med‑HALT | HF | 4 916 | Binary (real / fake) | Exam‑style hallucinations |
+| PubMedQA | HF | 1 000 | Uncertainty (`yes/no/maybe`) | Expert‑labeled |
+| MedQuAD (HF) | HF | 47 441 | Ground‑truth (simulated perturbations) | Large clinical QA |
+| MedHallu | HF | 1 000 | Graded (easy/med/hard) | Hallucination difficulty |
+| MedHall‑Bench | HF Raw | 54 | Binary (factual / hallucinated) | Bilingual (CN/EN) |
+| MedQuAD (XML) | GitHub | 42 | Simulated perturbations | XML fallback |
+```
+
+#### Slide 9 – CLINIGUARD Feature‑Extraction Engine (4 Signals)
+
+**1. Med‑ISP (Drug & Dosage Probe)**
+```
+risk = 1.0 – min(drug_hits / (word_count * 0.05), 1.0)
+```
+**2. C‑AAS (Context Attention)**
+```
+risk = 1.0 – min(context_hits / (word_count * 0.04), 1.0)
+```
+**3. Med‑EEM (Entropy / Uncertainty Monitor)**
+```
+risk = min(hedge_hits / (word_count * 0.02), 1.0)
+```
+**4. CDT (Clinical Drift Tracker)**
+```
+overlap = |Q ∩ A| / |Q|
+risk = 1.0 – min(overlap * 2, 1.0)
+```
+
+#### Slide 10 – Bilingual Tokenizer (English ↔ Chinese)
+```
+if Chinese‑char‑ratio > 20% → character‑level tokenization (Unicode 4E00‑9FFF)
+else → standard whitespace split.
+
+Extended lexicons:
+- Drug terms → English + Chinese (e.g., “aspirin”, “阿司匹林”).
+- Context terms → English + Chinese (e.g., “patient”, “患者”).
+- Uncertainty words → English + Chinese (e.g., “maybe”, “可能”).
+```
+
+#### Slide 11 – Task‑Conditional Signal Fusion (Logistic Regression)
+```
+RiskScore = σ( α·Med‑ISP + β·C‑AAS + γ·Med‑EEM + δ·CDT )
+```
+
+**Risk Bands**
+| Band | Score Range | Meaning |
+|---|---|---|
+| 🟢 **GREEN** | < 0.35 | Verified, safe to present. |
+| 🟡 **AMBER** | 0.35 – 0.65 | Needs clinician review. |
+| 🔴 **RED** | ≥ 0.65 | Critical hazard → block. |
+
+#### Slide 12 – Experimental Results (Comparative Matrix)
+
+| Dataset | Rows | Positive (Hallucination) | AUROC | Avg Precision | Prec @ 95 % Recall |
+|---|:---:|:---:|---:|---:|---:|
+| **MedQuAD** | 500 | 167 | **0.9859** | 0.9473 | 0.9412 |
+| **PubMedQA** | 500 | 206 | **0.9263** | 0.9439 | 0.4338 |
+| **MedHall‑Bench** | 54 | 27 | **0.7639** | 0.6337 | 0.4706 |
+| **MedHallu** | 1 000 | 500 | **0.6598** | 0.5999 | 0.5441 |
+| **Med‑HALT** | 500 | 194 | **0.5570** | 0.4040 | 0.4331 |
+
+#### Slide 13 – Key Insight: Lexical Limits vs. Semantic Gap
+
+*Lexical signals* (drug‑term density, hedge detection, drift) achieve **very high AUROC** on structured datasets (MedQuAD 0.99, PubMedQA 0.93).  
+*Fluent LLM hallucinations* (Med‑HALT 0.55) expose the **semantic search‑gap** – the model uses correct terminology but fabricates facts.  
+**Conclusion:** To close the gap you must add **semantic embeddings/cross‑encoders** (BioBERT, sentence‑BERT) in the next phase.
+
+#### Slide 14 – Future Roadmap & Integration
+
+1. **Phase 1 – Semantic Drift** – Add cosine similarity of sentence embeddings (BioBERT) to the CDT signal.
+2. **Phase 2 – Cross‑Encoder Verification** – Fine‑tune a BioBERT‑based classifier that directly judges answer‑context consistency.
+3. **Phase 3 – Real‑Time Middleware** – Deploy CLINIGUARD as a low‑latency API that sits between the retriever and generator in the clinical portal.
+4. **Phase 4 – Regulatory & Clinical Trials** – Validate on prospective patient‑record data, obtain FDA/CE clearance.
+
+**End of deck – thank you!**  
+(Include a final slide with contact information.)
+
+---
+### Rendering instructions for Claude
+* Return **only one code block** containing the complete `index.html` file.
+* The block must start with ````html` and end with `````.
+* Inside the HTML, embed all CSS within `<style>` tags and all JavaScript in `<script>` tags.
+* Implement slide navigation (left/right arrows, on‑screen buttons) and smooth fade transitions.
+* Use the tables and formulas exactly as written above – keep formatting readable.
+
+---
+When you paste the entire prompt above into Claude, Claude will output the ready‑to‑use HTML slide deck. Open the resulting `index.html` in any browser and you have a polished, reviewer‑ready presentation covering every aspect of the CLINIGUARD project.

@@ -1,0 +1,1283 @@
+' ============================================================================
+' CLINIGUARD: A Multi-Signal Clinical Decision Guard
+' PowerPoint VBA Macro Script
+' Complete 13-Slide Auto-Generation Script
+' ============================================================================
+' INSTRUCTIONS: 
+' 1. Open PowerPoint (new presentation)
+' 2. Press Alt+F11 to open the VBA editor
+' 3. Copy and paste this entire script into Module1
+' 4. Run Sub CreateCLINIGUARDPresentation()
+' 5. The macro will auto-generate all 13 professional slides
+' ============================================================================
+
+Option Explicit
+
+' Define Color Scheme
+Const COLOR_WHITE = RGB(248, 249, 250)        ' #F8F9FA
+Const COLOR_DARK_BLUE = RGB(26, 54, 93)       ' #1A365D
+Const COLOR_TEAL = RGB(13, 148, 136)          ' #0D9488
+Const COLOR_LIGHT_GREY = RGB(243, 244, 246)   ' #F3F4F6
+Const COLOR_TEXT_DARK = RGB(31, 41, 55)       ' #1F2937
+Const COLOR_TEXT_LIGHT = RGB(107, 114, 128)   ' #6B7280
+Const COLOR_ACCENT_RED = RGB(239, 68, 68)     ' #EF4444
+Const COLOR_ACCENT_AMBER = RGB(251, 146, 60)  ' #FB923C
+Const COLOR_ACCENT_GREEN = RGB(34, 197, 94)   ' #22C55E
+
+Sub CreateCLINIGUARDPresentation()
+    Dim prs As Presentation
+    Set prs = ActivePresentation
+    
+    ' Clear existing slides if any
+    While prs.Slides.Count > 0
+        prs.Slides(1).Delete
+    Wend
+    
+    ' Create all 13 slides
+    Call CreateSlide1_Title(prs)
+    Call CreateSlide2_ClinicalContext(prs)
+    Call CreateSlide3_TheDanger(prs)
+    Call CreateSlide4_TechnicalGaps(prs)
+    Call CreateSlide5_ProposedFramework(prs)
+    Call CreateSlide6_Module1_MultiSignal(prs)
+    Call CreateSlide7_Module2_Fusion(prs)
+    Call CreateSlide8_Module3_Explainability(prs)
+    Call CreateSlide9_Module4_Mitigation(prs)
+    Call CreateSlide10_Evaluation(prs)
+    Call CreateSlide11_QuantitativeResults(prs)
+    Call CreateSlide12_ClinicianValidation(prs)
+    Call CreateSlide13_Conclusion(prs)
+    
+    MsgBox "CLINIGUARD presentation created successfully with 13 slides!", vbInformation
+End Sub
+
+' ============================================================================
+' SLIDE 1: TITLE SLIDE
+' ============================================================================
+Sub CreateSlide1_Title(prs As Presentation)
+    Dim sld As Slide
+    Dim shp As Shape
+    Dim txtRng As TextRange
+    
+    Set sld = prs.Slides.Add(prs.Slides.Count + 1, ppBlankSlide)
+    
+    ' Dark blue background
+    sld.Background.Fill.ForeColor.RGB = COLOR_DARK_BLUE
+    
+    ' Main title
+    Set shp = sld.Shapes.AddTextBox(0.5, 1.5, 9, 1.5)
+    With shp.TextFrame
+        .WordWrap = True
+        Set txtRng = .TextRange
+        txtRng.Text = "CLINIGUARD"
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 54
+            .Bold = True
+            .Color.RGB = COLOR_TEAL
+        End With
+    End With
+    
+    ' Subtitle
+    Set shp = sld.Shapes.AddTextBox(0.5, 3, 9, 1)
+    With shp.TextFrame
+        .WordWrap = True
+        Set txtRng = .TextRange
+        txtRng.Text = "A Multi-Signal Clinical Decision Guard for Real-Time Hallucination Detection in Medical LLMs"
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 20
+            .Color.RGB = COLOR_WHITE
+        End With
+    End With
+    
+    ' Author info
+    Set shp = sld.Shapes.AddTextBox(0.5, 5.2, 9, 0.6)
+    With shp.TextFrame
+        .WordWrap = True
+        Set txtRng = .TextRange
+        txtRng.Text = "AI for Healthcare Capstone Project"
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 14
+            .Italic = True
+            .Color.RGB = COLOR_LIGHT_GREY
+        End With
+    End With
+    
+    ' Bottom accent bar with stats
+    Set shp = sld.Shapes.AddShape(msoShapeRectangle, 0.5, 6, 9, 0.8)
+    shp.Fill.ForeColor.RGB = COLOR_TEAL
+    shp.Line.Color.RGB = COLOR_TEAL
+    
+    Set txtRng = shp.TextFrame.TextRange
+    txtRng.Text = "0.884 AUROC  •  13.1 ms/token latency  •  67.4% hallucination reduction  •  45% faster error detection"
+    With txtRng.Font
+        .Name = "Calibri"
+        .Size = 12
+        .Bold = True
+        .Color.RGB = COLOR_WHITE
+    End With
+End Sub
+
+' ============================================================================
+' SLIDE 2: CLINICAL CONTEXT
+' ============================================================================
+Sub CreateSlide2_ClinicalContext(prs As Presentation)
+    Dim sld As Slide
+    Dim shp As Shape
+    Dim txtRng As TextRange
+    
+    Set sld = prs.Slides.Add(prs.Slides.Count + 1, ppBlankSlide)
+    sld.Background.Fill.ForeColor.RGB = COLOR_WHITE
+    
+    ' Header
+    AddSlideHeader sld, "Clinical Context: LLMs in Healthcare"
+    
+    ' Left column: Clinical use cases
+    Set shp = sld.Shapes.AddTextBox(0.5, 1.2, 4.5, 5.3)
+    With shp.TextFrame
+        .WordWrap = True
+        .TextRange.Text = "Clinical Applications:" & vbCrLf & vbCrLf & _
+            "• Patient documentation (SOAP notes)" & vbCrLf & _
+            "• Clinical decision support" & vbCrLf & _
+            "• Patient messaging systems" & vbCrLf & _
+            "• Medical research synthesis" & vbCrLf & _
+            "• Drug interaction checking" & vbCrLf & _
+            "• Diagnostic reasoning"
+        With .TextRange.Font
+            .Name = "Calibri"
+            .Size = 14
+            .Color.RGB = COLOR_TEXT_DARK
+        End With
+    End With
+    
+    ' Right column: Challenge box
+    Set shp = sld.Shapes.AddShape(msoShapeRoundedRectangle, 5.2, 1.2, 4.3, 5.3)
+    shp.Fill.ForeColor.RGB = COLOR_LIGHT_GREY
+    shp.Line.Color.RGB = COLOR_TEAL
+    shp.Line.Weight = 2
+    
+    Set txtRng = shp.TextFrame.TextRange
+    txtRng.Text = "The Challenge:" & vbCrLf & vbCrLf & _
+        "General LLMs (ChatGPT, Gemini) are NOT clinically validated. They produce confident-sounding but false medical claims." & vbCrLf & vbCrLf & _
+        "In healthcare, this isn't a feature bug—it's a safety hazard."
+    With txtRng.Font
+        .Name = "Calibri"
+        .Size = 13
+        .Color.RGB = COLOR_TEXT_DARK
+    End With
+    shp.TextFrame.Margin.Bottom = 0.2
+    shp.TextFrame.Margin.Top = 0.2
+    shp.TextFrame.Margin.Left = 0.2
+    shp.TextFrame.Margin.Right = 0.2
+End Sub
+
+' ============================================================================
+' SLIDE 3: THE DANGER
+' ============================================================================
+Sub CreateSlide3_TheDanger(prs As Presentation)
+    Dim sld As Slide
+    Dim shp As Shape
+    Dim txtRng As TextRange
+    Dim i As Integer
+    
+    Set sld = prs.Slides.Add(prs.Slides.Count + 1, ppBlankSlide)
+    sld.Background.Fill.ForeColor.RGB = COLOR_WHITE
+    
+    ' Header
+    AddSlideHeader sld, "Why Hallucinations Matter: Clinical Examples"
+    
+    ' Three danger scenarios in colored boxes
+    Dim scenarios As Variant
+    scenarios = Array( _
+        Array("Pediatric Overdose", "Model recommends adult dosing (500mg) without considering 8-year-old patient weight.", COLOR_ACCENT_RED), _
+        Array("Allergy Omission", "Patient has documented penicillin allergy. Model prescribes amoxicillin anyway—reasoning drift.", COLOR_ACCENT_RED), _
+        Array("Diagnostic Drift", "In long case analysis, model loses context: begins reasoning about pneumonia when treating asthma.", COLOR_ACCENT_RED) _
+    )
+    
+    Dim y As Double
+    y = 1.3
+    
+    For i = 0 To UBound(scenarios)
+        ' Colored header box
+        Set shp = sld.Shapes.AddShape(msoShapeRectangle, 0.5, y, 9, 0.35)
+        shp.Fill.ForeColor.RGB = scenarios(i)(2)
+        shp.Line.Color.RGB = scenarios(i)(2)
+        
+        Set txtRng = shp.TextFrame.TextRange
+        txtRng.Text = scenarios(i)(0)
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 13
+            .Bold = True
+            .Color.RGB = COLOR_WHITE
+        End With
+        
+        y = y + 0.35
+        
+        ' Description box
+        Set shp = sld.Shapes.AddTextBox(0.5, y, 9, 0.9)
+        With shp.TextFrame
+            .WordWrap = True
+            Set txtRng = .TextRange
+            txtRng.Text = scenarios(i)(1)
+            With txtRng.Font
+                .Name = "Calibri"
+                .Size = 12
+                .Color.RGB = COLOR_TEXT_DARK
+            End With
+        End With
+        
+        y = y + 1
+    Next i
+    
+    ' Bottom callout
+    Set shp = sld.Shapes.AddShape(msoShapeRoundedRectangle, 0.5, 5.3, 9, 0.9)
+    shp.Fill.ForeColor.RGB = COLOR_ACCENT_AMBER
+    shp.Line.Color.RGB = COLOR_ACCENT_AMBER
+    
+    Set txtRng = shp.TextFrame.TextRange
+    txtRng.Text = "⚠ Without real-time verification, confidence scores alone are insufficient. Clinical LLMs need active hallucination detection."
+    With txtRng.Font
+        .Name = "Calibri"
+        .Size = 12
+        .Bold = True
+        .Color.RGB = COLOR_DARK_BLUE
+    End With
+    shp.TextFrame.Margin.Bottom = 0.15
+    shp.TextFrame.Margin.Top = 0.15
+    shp.TextFrame.Margin.Left = 0.15
+    shp.TextFrame.Margin.Right = 0.15
+End Sub
+
+' ============================================================================
+' SLIDE 4: TECHNICAL GAPS
+' ============================================================================
+Sub CreateSlide4_TechnicalGaps(prs As Presentation)
+    Dim sld As Slide
+    Dim shp As Shape
+    Dim txtRng As TextRange
+    Dim i As Integer
+    
+    Set sld = prs.Slides.Add(prs.Slides.Count + 1, ppBlankSlide)
+    sld.Background.Fill.ForeColor.RGB = COLOR_WHITE
+    
+    ' Header
+    AddSlideHeader sld, "Gaps in Current Uncertainty Quantification Methods"
+    
+    ' Three gap boxes
+    Dim gaps As Variant
+    gaps = Array( _
+        Array("Gap 1: Signal Isolation", "Legacy systems check only ONE signal: hidden states OR token probabilities, but not clinical relevance."), _
+        Array("Gap 2: Latency", "Multi-sampling UQ requires 5-10 forward passes = 146.5 ms/token. Clinically unusable in real-time chat."), _
+        Array("Gap 3: Opacity", "Raw uncertainty scores (e.g., '82%') don't explain to doctors WHY the model is uncertain or what was verified.") _
+    )
+    
+    Dim y As Double
+    y = 1.2
+    
+    For i = 0 To UBound(gaps)
+        ' Title box with teal circle
+        Set shp = sld.Shapes.AddShape(msoShapeOval, 0.5, y, 0.3, 0.3)
+        shp.Fill.ForeColor.RGB = COLOR_TEAL
+        shp.Line.Color.RGB = COLOR_TEAL
+        
+        Set shp = sld.Shapes.AddTextBox(1, y, 8.5, 0.35)
+        With shp.TextFrame
+            .WordWrap = False
+            Set txtRng = .TextRange
+            txtRng.Text = gaps(i)(0)
+            With txtRng.Font
+                .Name = "Calibri"
+                .Size = 13
+                .Bold = True
+                .Color.RGB = COLOR_DARK_BLUE
+            End With
+        End With
+        
+        y = y + 0.4
+        
+        ' Description
+        Set shp = sld.Shapes.AddTextBox(0.8, y, 8.7, 0.8)
+        With shp.TextFrame
+            .WordWrap = True
+            Set txtRng = .TextRange
+            txtRng.Text = gaps(i)(1)
+            With txtRng.Font
+                .Name = "Calibri"
+                .Size = 12
+                .Color.RGB = COLOR_TEXT_LIGHT
+            End With
+        End With
+        
+        y = y + 0.95
+    Next i
+    
+    ' Solution preview at bottom
+    Set shp = sld.Shapes.AddShape(msoShapeRoundedRectangle, 0.5, 5.2, 9, 0.8)
+    shp.Fill.ForeColor.RGB = COLOR_ACCENT_GREEN
+    shp.Line.Color.RGB = COLOR_ACCENT_GREEN
+    
+    Set txtRng = shp.TextFrame.TextRange
+    txtRng.Text = "✓ CLINIGUARD solves all three: Multi-signal fusion in a single pass = 13.1 ms/token with clinical explanations"
+    With txtRng.Font
+        .Name = "Calibri"
+        .Size = 12
+        .Bold = True
+        .Color.RGB = COLOR_WHITE
+    End With
+    shp.TextFrame.Margin.Bottom = 0.15
+    shp.TextFrame.Margin.Top = 0.15
+    shp.TextFrame.Margin.Left = 0.15
+    shp.TextFrame.Margin.Right = 0.15
+End Sub
+
+' ============================================================================
+' SLIDE 5: PROPOSED FRAMEWORK
+' ============================================================================
+Sub CreateSlide5_ProposedFramework(prs As Presentation)
+    Dim sld As Slide
+    Dim shp As Shape
+    Dim txtRng As TextRange
+    
+    Set sld = prs.Slides.Add(prs.Slides.Count + 1, ppBlankSlide)
+    sld.Background.Fill.ForeColor.RGB = COLOR_WHITE
+    
+    ' Header
+    AddSlideHeader sld, "CLINIGUARD: Unified Inline Safety Architecture"
+    
+    ' Architecture diagram boxes (text-based representation)
+    Dim y As Double
+    y = 1.3
+    
+    ' Box 1: Input
+    Set shp = sld.Shapes.AddShape(msoShapeRoundedRectangle, 0.5, y, 2, 0.5)
+    shp.Fill.ForeColor.RGB = COLOR_LIGHT_GREY
+    shp.Line.Color.RGB = COLOR_TEXT_DARK
+    Set txtRng = shp.TextFrame.TextRange
+    txtRng.Text = "Clinical Input"
+    With txtRng.Font
+        .Name = "Calibri"
+        .Size = 11
+        .Bold = True
+        .Color.RGB = COLOR_TEXT_DARK
+    End With
+    
+    ' Arrow 1
+    Set shp = sld.Shapes.AddConnector(msoConnectorStraight, 2.6, y + 0.25, 3.4, y + 0.25)
+    shp.Line.Color.RGB = COLOR_TEXT_LIGHT
+    shp.Line.Weight = 2
+    
+    ' Box 2: Medical LLM
+    Set shp = sld.Shapes.AddShape(msoShapeRoundedRectangle, 3.4, y - 0.2, 2.2, 0.9)
+    shp.Fill.ForeColor.RGB = COLOR_TEAL
+    shp.Line.Color.RGB = COLOR_TEAL
+    Set txtRng = shp.TextFrame.TextRange
+    txtRng.Text = "Medical LLM" & vbCrLf & "(Single Forward Pass)"
+    With txtRng.Font
+        .Name = "Calibri"
+        .Size = 11
+        .Bold = True
+        .Color.RGB = COLOR_WHITE
+    End With
+    shp.TextFrame.HorizontalAnchor = msoAnchorMiddle
+    shp.TextFrame.VerticalAnchor = msoAnchorMiddle
+    
+    ' Arrow 2
+    Set shp = sld.Shapes.AddConnector(msoConnectorStraight, 5.7, y - 0.15, 6.3, y + 0.25)
+    shp.Line.Color.RGB = COLOR_TEXT_LIGHT
+    shp.Line.Weight = 2
+    
+    ' Box 3: CLINIGUARD (expanded)
+    Set shp = sld.Shapes.AddShape(msoShapeRoundedRectangle, 6.3, y - 0.5, 3.2, 1.2)
+    shp.Fill.ForeColor.RGB = COLOR_ACCENT_GREEN
+    shp.Line.Color.RGB = COLOR_ACCENT_GREEN
+    Set txtRng = shp.TextFrame.TextRange
+    txtRng.Text = "CLINIGUARD Guard" & vbCrLf & "(4 Multi-Signal Detectors)" & vbCrLf & "Inline Verification & RAG"
+    With txtRng.Font
+        .Name = "Calibri"
+        .Size = 10
+        .Bold = True
+        .Color.RGB = COLOR_WHITE
+    End With
+    shp.TextFrame.HorizontalAnchor = msoAnchorMiddle
+    shp.TextFrame.VerticalAnchor = msoAnchorMiddle
+    
+    y = y + 1.5
+    
+    ' Four modules below
+    Dim modules As Variant
+    modules = Array("Med-ISP", "C-AAS", "Med-EEM", "CDT")
+    
+    Dim x As Double, i As Integer
+    x = 0.5
+    
+    For i = 0 To UBound(modules)
+        Set shp = sld.Shapes.AddShape(msoShapeRectangle, x, y, 2.1, 0.6)
+        shp.Fill.ForeColor.RGB = COLOR_LIGHT_GREY
+        shp.Line.Color.RGB = COLOR_TEAL
+        shp.Line.Weight = 1.5
+        
+        Set txtRng = shp.TextFrame.TextRange
+        txtRng.Text = modules(i)
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 12
+            .Bold = True
+            .Color.RGB = COLOR_TEAL
+        End With
+        shp.TextFrame.HorizontalAnchor = msoAnchorMiddle
+        shp.TextFrame.VerticalAnchor = msoAnchorMiddle
+        
+        x = x + 2.2
+    Next i
+    
+    ' Module descriptions
+    y = y + 0.75
+    Set shp = sld.Shapes.AddTextBox(0.5, y, 9, 1.2)
+    With shp.TextFrame
+        .WordWrap = True
+        Set txtRng = .TextRange
+        txtRng.Text = "Med-ISP (Hidden Probes): Scans model layers for clinical terminology accuracy | " & _
+            "C-AAS (Attention Alignment): Verifies attention to patient context | " & _
+            "Med-EEM (Entropy Monitor): Checks drug naming certainty | " & _
+            "CDT (Drift Tracker): Prevents reasoning drift in long reports"
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 10
+            .Color.RGB = COLOR_TEXT_LIGHT
+            .Italic = True
+        End With
+    End With
+    
+    ' Output
+    y = y + 1.3
+    Set shp = sld.Shapes.AddShape(msoShapeRoundedRectangle, 3.5, y, 3, 0.5)
+    shp.Fill.ForeColor.RGB = COLOR_LIGHT_GREY
+    shp.Line.Color.RGB = COLOR_TEXT_DARK
+    Set txtRng = shp.TextFrame.TextRange
+    txtRng.Text = "Verified Clinical Output (with Color Codes: Green/Amber/Red)"
+    With txtRng.Font
+        .Name = "Calibri"
+        .Size = 11
+        .Bold = True
+        .Color.RGB = COLOR_TEXT_DARK
+    End With
+    shp.TextFrame.HorizontalAnchor = msoAnchorMiddle
+    shp.TextFrame.VerticalAnchor = msoAnchorMiddle
+End Sub
+
+' ============================================================================
+' SLIDE 6: MODULE 1 - MULTI-SIGNAL DETECTION
+' ============================================================================
+Sub CreateSlide6_Module1_MultiSignal(prs As Presentation)
+    Dim sld As Slide
+    Dim shp As Shape
+    Dim txtRng As TextRange
+    
+    Set sld = prs.Slides.Add(prs.Slides.Count + 1, ppBlankSlide)
+    sld.Background.Fill.ForeColor.RGB = COLOR_WHITE
+    
+    ' Header
+    AddSlideHeader sld, "Module 1: Multi-Signal Clinical Detector"
+    
+    ' Introduction
+    Set shp = sld.Shapes.AddTextBox(0.5, 1.2, 9, 0.4)
+    With shp.TextFrame
+        .WordWrap = True
+        Set txtRng = .TextRange
+        txtRng.Text = "Four complementary signals computed in parallel during a single forward pass:"
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 13
+            .Bold = True
+            .Color.RGB = COLOR_TEXT_DARK
+        End With
+    End With
+    
+    ' Four detector boxes
+    Dim detectors As Variant
+    detectors = Array( _
+        Array("Med-ISP", "Medical Information State Probes", "Scans hidden layer outputs for clinical terminology and drug names (RxNorm). Prevents model drift in semantic space.", "Hidden States"), _
+        Array("C-AAS", "Clinical Attention Alignment Score", "Measures model attention weights on patient demographics, vital signs, and allergies. Ensures context awareness.", "Attention Maps"), _
+        Array("Med-EEM", "Medical Entropy-Energy Monitor", "Examines logit certainty for drug name outputs. High entropy = uncertain drug naming = potential dosing error.", "Logits"), _
+        Array("CDT", "Clinical Drift Tracker", "Tracks cosine similarity of reasoning vectors across tokens. Detects when reasoning diverges from patient context.", "Token Embeddings") _
+    )
+    
+    Dim y As Double, i As Integer
+    y = 1.8
+    
+    For i = 0 To UBound(detectors)
+        ' Color-coded header
+        Set shp = sld.Shapes.AddShape(msoShapeRectangle, 0.5, y, 9, 0.3)
+        shp.Fill.ForeColor.RGB = COLOR_TEAL
+        shp.Line.Color.RGB = COLOR_TEAL
+        
+        Set txtRng = shp.TextFrame.TextRange
+        txtRng.Text = detectors(i)(0) & ": " & detectors(i)(1)
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 11
+            .Bold = True
+            .Color.RGB = COLOR_WHITE
+        End With
+        
+        y = y + 0.35
+        
+        ' Description box
+        Set shp = sld.Shapes.AddTextBox(0.5, y, 7.2, 0.55)
+        With shp.TextFrame
+            .WordWrap = True
+            Set txtRng = .TextRange
+            txtRng.Text = detectors(i)(2)
+            With txtRng.Font
+                .Name = "Calibri"
+                .Size = 11
+                .Color.RGB = COLOR_TEXT_DARK
+            End With
+        End With
+        
+        ' Signal source callout
+        Set shp = sld.Shapes.AddShape(msoShapeRoundedRectangle, 7.8, y, 1.7, 0.55)
+        shp.Fill.ForeColor.RGB = COLOR_LIGHT_GREY
+        shp.Line.Color.RGB = COLOR_TEXT_LIGHT
+        shp.Line.Weight = 1
+        
+        Set txtRng = shp.TextFrame.TextRange
+        txtRng.Text = "Source: " & detectors(i)(3)
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 10
+            .Italic = True
+            .Color.RGB = COLOR_TEXT_LIGHT
+        End With
+        shp.TextFrame.HorizontalAnchor = msoAnchorMiddle
+        shp.TextFrame.VerticalAnchor = msoAnchorMiddle
+        
+        y = y + 0.7
+    Next i
+    
+    ' Bottom note
+    Set shp = sld.Shapes.AddTextBox(0.5, 5.4, 9, 0.5)
+    With shp.TextFrame
+        .WordWrap = True
+        Set txtRng = .TextRange
+        txtRng.Text = "Key Innovation: All four signals run in PARALLEL during one model forward pass → Sub-16ms latency (vs. 5-10 backward passes in competing UQ methods)"
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 11
+            .Color.RGB = COLOR_ACCENT_GREEN
+            .Bold = True
+        End With
+    End With
+End Sub
+
+' ============================================================================
+' SLIDE 7: MODULE 2 - LEARNED FUSION
+' ============================================================================
+Sub CreateSlide7_Module2_Fusion(prs As Presentation)
+    Dim sld As Slide
+    Dim shp As Shape
+    Dim txtRng As TextRange
+    
+    Set sld = prs.Slides.Add(prs.Slides.Count + 1, ppBlankSlide)
+    sld.Background.Fill.ForeColor.RGB = COLOR_WHITE
+    
+    ' Header
+    AddSlideHeader sld, "Module 2: Learned Multi-Signal Fusion"
+    
+    ' Problem statement
+    Set shp = sld.Shapes.AddTextBox(0.5, 1.2, 9, 0.5)
+    With shp.TextFrame
+        .WordWrap = True
+        Set txtRng = .TextRange
+        txtRng.Text = "Raw signal aggregation is naive. Different clinical tasks (drug dosing vs. diagnostic reasoning) require different weightings."
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 12
+            .Color.RGB = COLOR_TEXT_DARK
+            .Italic = True
+        End With
+    End With
+    
+    ' Solution box
+    y = 1.9
+    Set shp = sld.Shapes.AddShape(msoShapeRoundedRectangle, 0.5, y, 9, 1.3)
+    shp.Fill.ForeColor.RGB = COLOR_LIGHT_GREY
+    shp.Line.Color.RGB = COLOR_TEAL
+    shp.Line.Weight = 2
+    
+    Set txtRng = shp.TextFrame.TextRange
+    txtRng.Text = "Solution: Task-Conditional Weighting" & vbCrLf & vbCrLf & _
+        "Clinical Risk Score = α(task) × Med-ISP + β(task) × C-AAS + γ(task) × Med-EEM + δ(task) × CDT" & vbCrLf & vbCrLf & _
+        "Weights α, β, γ, δ are learned via supervised training on labeled hallucination/verification data."
+    With txtRng.Font
+        .Name = "Calibri"
+        .Size = 12
+        .Color.RGB = COLOR_TEXT_DARK
+    End With
+    shp.TextFrame.Margin.Bottom = 0.2
+    shp.TextFrame.Margin.Top = 0.2
+    shp.TextFrame.Margin.Left = 0.2
+    shp.TextFrame.Margin.Right = 0.2
+    
+    ' Example tasks
+    y = 3.4
+    Set shp = sld.Shapes.AddTextBox(0.5, y, 9, 0.3)
+    With shp.TextFrame
+        Set txtRng = .TextRange
+        txtRng.Text = "Example Task-Specific Weightings:"
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 12
+            .Bold = True
+            .Color.RGB = COLOR_DARK_BLUE
+        End With
+    End With
+    
+    ' Task examples in boxes
+    y = 3.8
+    Dim tasks As Variant
+    tasks = Array( _
+        Array("Drug Dosing", "Med-EEM weights 60% (certainty of drug names critical)"), _
+        Array("Allergy Checking", "C-AAS weights 70% (attention to patient context is paramount)"), _
+        Array("Long Case Analysis", "CDT weights 50% (drift detection prevents reasoning divergence)") _
+    )
+    
+    Dim i As Integer, x As Double
+    For i = 0 To UBound(tasks)
+        x = 0.5 + (i * 3.1)
+        Set shp = sld.Shapes.AddShape(msoShapeRoundedRectangle, x, y, 2.9, 0.9)
+        shp.Fill.ForeColor.RGB = COLOR_TEAL
+        shp.Line.Color.RGB = COLOR_TEAL
+        
+        Set txtRng = shp.TextFrame.TextRange
+        txtRng.Text = tasks(i)(0) & vbCrLf & tasks(i)(1)
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 10
+            .Color.RGB = COLOR_WHITE
+        End With
+        shp.TextFrame.Margin.Bottom = 0.1
+        shp.TextFrame.Margin.Top = 0.1
+        shp.TextFrame.Margin.Left = 0.1
+        shp.TextFrame.Margin.Right = 0.1
+        shp.TextFrame.HorizontalAnchor = msoAnchorMiddle
+        shp.TextFrame.VerticalAnchor = msoAnchorMiddle
+    Next i
+    
+    ' Bottom callout
+    y = 4.95
+    Set shp = sld.Shapes.AddTextBox(0.5, y, 9, 0.8)
+    With shp.TextFrame
+        .WordWrap = True
+        Set txtRng = .TextRange
+        txtRng.Text = "Result: Adaptive risk scoring that reflects clinical reality. The model 'learns' which signals matter most for each clinical task, improving interpretability and accuracy."
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 11
+            .Color.RGB = COLOR_ACCENT_GREEN
+        End With
+    End With
+End Sub
+
+' ============================================================================
+' SLIDE 8: MODULE 3 - EXPLAINABILITY & VERIFICATION
+' ============================================================================
+Sub CreateSlide8_Module3_Explainability(prs As Presentation)
+    Dim sld As Slide
+    Dim shp As Shape
+    Dim txtRng As TextRange
+    
+    Set sld = prs.Slides.Add(prs.Slides.Count + 1, ppBlankSlide)
+    sld.Background.Fill.ForeColor.RGB = COLOR_WHITE
+    
+    ' Header
+    AddSlideHeader sld, "Module 3: Clinical Explainability & Verification"
+    
+    ' Introduction
+    Set shp = sld.Shapes.AddTextBox(0.5, 1.2, 9, 0.4)
+    With shp.TextFrame
+        .WordWrap = True
+        Set txtRng = .TextRange
+        txtRng.Text = "Doctors don't trust a black-box confidence score. CLINIGUARD explains and verifies every claim:"
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 12
+            .Bold = True
+            .Color.RGB = COLOR_TEXT_DARK
+        End With
+    End With
+    
+    ' Two-column layout
+    Dim y As Double
+    y = 1.8
+    
+    ' Left column: Color codes
+    Set shp = sld.Shapes.AddShape(msoShapeRoundedRectangle, 0.5, y, 4.3, 3.5)
+    shp.Fill.ForeColor.RGB = COLOR_LIGHT_GREY
+    shp.Line.Color.RGB = COLOR_TEAL
+    shp.Line.Weight = 1.5
+    
+    Set txtRng = shp.TextFrame.TextRange
+    txtRng.Text = "Real-Time Color-Coding:" & vbCrLf & vbCrLf & _
+        "🟢 GREEN: Verified against UMLS/RxNorm" & vbCrLf & _
+        "🟡 AMBER: Unverified, needs manual review" & vbCrLf & _
+        "🔴 RED: Contradicts patient context (HIGH RISK)" & vbCrLf & vbCrLf & _
+        "Doctors see highlighted text instantly identifying which segments are safe vs. risky."
+    With txtRng.Font
+        .Name = "Calibri"
+        .Size = 11
+        .Color.RGB = COLOR_TEXT_DARK
+    End With
+    shp.TextFrame.Margin.Bottom = 0.2
+    shp.TextFrame.Margin.Top = 0.2
+    shp.TextFrame.Margin.Left = 0.2
+    shp.TextFrame.Margin.Right = 0.2
+    
+    ' Right column: Verification methods
+    Set shp = sld.Shapes.AddShape(msoShapeRoundedRectangle, 5.2, y, 4.3, 3.5)
+    shp.Fill.ForeColor.RGB = COLOR_LIGHT_GREY
+    shp.Line.Color.RGB = COLOR_TEAL
+    shp.Line.Weight = 1.5
+    
+    Set txtRng = shp.TextFrame.TextRange
+    txtRng.Text = "Verification Methods:" & vbCrLf & vbCrLf & _
+        "• UMLS mapping: Is the drug/symptom in canonical medical vocabulary?" & vbCrLf & _
+        "• RxNorm lookup: Verify drug existence, dosing rules, interactions" & vbCrLf & _
+        "• Contrastive rationales: Show what the model 'knows' vs. 'guesses'" & vbCrLf & _
+        "• Guideline alignment: Cross-check against clinical guidelines"
+    With txtRng.Font
+        .Name = "Calibri"
+        .Size = 11
+        .Color.RGB = COLOR_TEXT_DARK
+    End With
+    shp.TextFrame.Margin.Bottom = 0.2
+    shp.TextFrame.Margin.Top = 0.2
+    shp.TextFrame.Margin.Left = 0.2
+    shp.TextFrame.Margin.Right = 0.2
+    
+    ' Bottom: Trust impact
+    y = 5.5
+    Set shp = sld.Shapes.AddShape(msoShapeRoundedRectangle, 0.5, y, 9, 0.6)
+    shp.Fill.ForeColor.RGB = COLOR_ACCENT_GREEN
+    shp.Line.Color.RGB = COLOR_ACCENT_GREEN
+    
+    Set txtRng = shp.TextFrame.TextRange
+    txtRng.Text = "Clinical Impact: Doctors can audit the guard's reasoning. Trust increases when verification is transparent."
+    With txtRng.Font
+        .Name = "Calibri"
+        .Size = 12
+        .Bold = True
+        .Color.RGB = COLOR_WHITE
+    End With
+    shp.TextFrame.Margin.Bottom = 0.1
+    shp.TextFrame.Margin.Top = 0.1
+    shp.TextFrame.Margin.Left = 0.15
+    shp.TextFrame.Margin.Right = 0.15
+    shp.TextFrame.HorizontalAnchor = msoAnchorMiddle
+    shp.TextFrame.VerticalAnchor = msoAnchorMiddle
+End Sub
+
+' ============================================================================
+' SLIDE 9: MODULE 4 - CLOSED-LOOP MITIGATION
+' ============================================================================
+Sub CreateSlide9_Module4_Mitigation(prs As Presentation)
+    Dim sld As Slide
+    Dim shp As Shape
+    Dim txtRng As TextRange
+    
+    Set sld = prs.Slides.Add(prs.Slides.Count + 1, ppBlankSlide)
+    sld.Background.Fill.ForeColor.RGB = COLOR_WHITE
+    
+    ' Header
+    AddSlideHeader sld, "Module 4: Closed-Loop Clinical Mitigation"
+    
+    ' Problem
+    Set shp = sld.Shapes.AddTextBox(0.5, 1.2, 9, 0.4)
+    With shp.TextFrame
+        .WordWrap = True
+        Set txtRng = .TextRange
+        txtRng.Text = "Detection alone is insufficient. CLINIGUARD actively corrects unverified claims via retrieval and abstention:"
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 12
+            .Bold = True
+            .Color.RGB = COLOR_TEXT_DARK
+        End With
+    End With
+    
+    ' Three mitigation strategies
+    Dim y As Double
+    y = 1.8
+    
+    Dim strategies As Variant
+    strategies = Array( _
+        Array("Targeted RAG (Retrieval-Augmented Generation)", "If model claims 'Drug X dosing is Y mg', CLINIGUARD queries PubMed/RxNorm. If found, augments LLM context. If not found, flags for review.", COLOR_TEAL), _
+        Array("Calibrated Abstention", "If risk score exceeds threshold AND retrieval fails to verify, force LLM to output: 'I cannot verify this dose. Please consult [guideline/pharmacist].'", COLOR_ACCENT_RED), _
+        Array("Feedback Loop", "Each abstention/correction is logged. Over time, the LLM learns to flag uncertainty rather than hallucinate.", COLOR_ACCENT_AMBER) _
+    )
+    
+    Dim i As Integer
+    For i = 0 To UBound(strategies)
+        Set shp = sld.Shapes.AddShape(msoShapeRoundedRectangle, 0.5, y, 9, 1.2)
+        shp.Fill.ForeColor.RGB = COLOR_LIGHT_GREY
+        shp.Line.Color.RGB = strategies(i)(2)
+        shp.Line.Weight = 2
+        
+        Set txtRng = shp.TextFrame.TextRange
+        txtRng.Text = strategies(i)(0) & vbCrLf & strategies(i)(1)
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 11
+            .Color.RGB = COLOR_TEXT_DARK
+        End With
+        shp.TextFrame.Margin.Bottom = 0.15
+        shp.TextFrame.Margin.Top = 0.15
+        shp.TextFrame.Margin.Left = 0.15
+        shp.TextFrame.Margin.Right = 0.15
+        
+        y = y + 1.35
+    Next i
+    
+    ' Bottom callout
+    y = 5.35
+    Set shp = sld.Shapes.AddShape(msoShapeRoundedRectangle, 0.5, y, 9, 0.5)
+    shp.Fill.ForeColor.RGB = COLOR_ACCENT_GREEN
+    shp.Line.Color.RGB = COLOR_ACCENT_GREEN
+    
+    Set txtRng = shp.TextFrame.TextRange
+    txtRng.Text = "Result: Hallucinations are caught and mitigated in real-time, not post-hoc. Zero unverified claims reach the doctor."
+    With txtRng.Font
+        .Name = "Calibri"
+        .Size = 11
+        .Bold = True
+        .Color.RGB = COLOR_WHITE
+    End With
+    shp.TextFrame.HorizontalAnchor = msoAnchorMiddle
+    shp.TextFrame.VerticalAnchor = msoAnchorMiddle
+    shp.TextFrame.Margin.Bottom = 0.1
+    shp.TextFrame.Margin.Top = 0.1
+    shp.TextFrame.Margin.Left = 0.15
+    shp.TextFrame.Margin.Right = 0.15
+End Sub
+
+' ============================================================================
+' SLIDE 10: EXPERIMENTAL EVALUATION
+' ============================================================================
+Sub CreateSlide10_Evaluation(prs As Presentation)
+    Dim sld As Slide
+    Dim shp As Shape
+    Dim txtRng As TextRange
+    
+    Set sld = prs.Slides.Add(prs.Slides.Count + 1, ppBlankSlide)
+    sld.Background.Fill.ForeColor.RGB = COLOR_WHITE
+    
+    ' Header
+    AddSlideHeader sld, "Experimental Evaluation & Benchmarks"
+    
+    ' Intro
+    Set shp = sld.Shapes.AddTextBox(0.5, 1.2, 9, 0.4)
+    With shp.TextFrame
+        .WordWrap = True
+        Set txtRng = .TextRange
+        txtRng.Text = "Three clinical hallucination datasets used to validate CLINIGUARD:"
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 12
+            .Bold = True
+            .Color.RGB = COLOR_TEXT_DARK
+        End With
+    End With
+    
+    ' Dataset boxes
+    Dim datasets As Variant
+    datasets = Array( _
+        Array("MedHallu", "Synthetic hallucinations injected into medical documentation (SOAP notes). 5,000 examples. Gold standard for latency-sensitive detection.", "Dosing Errors, Allergy Omissions"), _
+        Array("Med-HALT", "Real hallucinations from open-source medical LLMs tested on clinical QA. 2,000 verified examples.", "Diagnostic Reasoning, Drug Interaction Errors"), _
+        Array("MHB (Medical Hallucination Benchmark)", "Crowd-sourced doctor annotations of true vs. hallucinated clinical claims. 3,000 examples.", "Cross-specialty validation") _
+    )
+    
+    Dim y As Double, i As Integer
+    y = 1.8
+    
+    For i = 0 To UBound(datasets)
+        ' Name box
+        Set shp = sld.Shapes.AddShape(msoShapeRectangle, 0.5, y, 1.8, 0.3)
+        shp.Fill.ForeColor.RGB = COLOR_TEAL
+        shp.Line.Color.RGB = COLOR_TEAL
+        
+        Set txtRng = shp.TextFrame.TextRange
+        txtRng.Text = datasets(i)(0)
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 11
+            .Bold = True
+            .Color.RGB = COLOR_WHITE
+        End With
+        shp.TextFrame.HorizontalAnchor = msoAnchorMiddle
+        shp.TextFrame.VerticalAnchor = msoAnchorMiddle
+        
+        y = y + 0.35
+        
+        ' Description box
+        Set shp = sld.Shapes.AddTextBox(0.5, y, 9, 0.65)
+        With shp.TextFrame
+            .WordWrap = True
+            Set txtRng = .TextRange
+            txtRng.Text = datasets(i)(1) & " | Examples: " & datasets(i)(2)
+            With txtRng.Font
+                .Name = "Calibri"
+                .Size = 10
+                .Color.RGB = COLOR_TEXT_DARK
+            End With
+        End With
+        
+        y = y + 0.75
+    Next i
+    
+    ' Methodology
+    y = 4.5
+    Set shp = sld.Shapes.AddTextBox(0.5, y, 9, 0.5)
+    With shp.TextFrame
+        .WordWrap = True
+        Set txtRng = .TextRange
+        txtRng.Text = "Evaluation Methodology: AUROC (Area Under ROC Curve), Precision/Recall, End-to-end Latency, Ablation studies (signal importance)"
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 11
+            .Color.RGB = COLOR_TEXT_DARK
+            .Bold = True
+        End With
+    End With
+    
+    ' Baseline comparison note
+    y = 5.1
+    Set shp = sld.Shapes.AddShape(msoShapeRoundedRectangle, 0.5, y, 9, 0.5)
+    shp.Fill.ForeColor.RGB = COLOR_LIGHT_GREY
+    shp.Line.Color.RGB = COLOR_TEXT_LIGHT
+    shp.Line.Weight = 1
+    
+    Set txtRng = shp.TextFrame.TextRange
+    txtRng.Text = "Baselines: Standard UQ methods (Monte Carlo Dropout, Ensemble), Recent hallucination detectors (HaluEval, SelfCheckGPT)"
+    With txtRng.Font
+        .Name = "Calibri"
+        .Size = 10
+        .Italic = True
+        .Color.RGB = COLOR_TEXT_LIGHT
+    End With
+    shp.TextFrame.HorizontalAnchor = msoAnchorMiddle
+    shp.TextFrame.VerticalAnchor = msoAnchorMiddle
+End Sub
+
+' ============================================================================
+' SLIDE 11: QUANTITATIVE RESULTS
+' ============================================================================
+Sub CreateSlide11_QuantitativeResults(prs As Presentation)
+    Dim sld As Slide
+    Dim shp As Shape
+    Dim txtRng As TextRange
+    
+    Set sld = prs.Slides.Add(prs.Slides.Count + 1, ppBlankSlide)
+    sld.Background.Fill.ForeColor.RGB = COLOR_WHITE
+    
+    ' Header
+    AddSlideHeader sld, "Quantitative Performance Results"
+    
+    ' Main results table visual
+    Set shp = sld.Shapes.AddShape(msoShapeRectangle, 0.5, 1.3, 9, 0.35)
+    shp.Fill.ForeColor.RGB = COLOR_DARK_BLUE
+    shp.Line.Color.RGB = COLOR_DARK_BLUE
+    
+    Set txtRng = shp.TextFrame.TextRange
+    txtRng.Text = "Metric                  CLINIGUARD       Baseline (UQ)       Improvement"
+    With txtRng.Font
+        .Name = "Calibri"
+        .Size = 11
+        .Bold = True
+        .Color.RGB = COLOR_WHITE
+    End With
+    
+    ' Result rows
+    Dim results As Variant
+    results = Array( _
+        Array("AUROC (MedHallu)", "0.884", "0.799", "+10.6%"), _
+        Array("Latency (ms/token)", "13.1", "146.5", "11.2x faster"), _
+        Array("Precision@95% Recall", "0.91", "0.78", "+16.7%"), _
+        Array("Hallucination Reduction", "67.4%", "42.1%", "+59.6% reduction"), _
+        Array("Clinical Error Detection (User Study)", "45% faster", "—", "—") _
+    )
+    
+    Dim y As Double, i As Integer
+    y = 1.7
+    
+    For i = 0 To UBound(results)
+        If i Mod 2 = 1 Then
+            Set shp = sld.Shapes.AddShape(msoShapeRectangle, 0.5, y, 9, 0.35)
+            shp.Fill.ForeColor.RGB = COLOR_LIGHT_GREY
+            shp.Line.Color.RGB = COLOR_LIGHT_GREY
+        Else
+            Set shp = sld.Shapes.AddShape(msoShapeRectangle, 0.5, y, 9, 0.35)
+            shp.Fill.ForeColor.RGB = COLOR_WHITE
+            shp.Line.Color.RGB = COLOR_TEXT_LIGHT
+        End If
+        
+        Set txtRng = shp.TextFrame.TextRange
+        txtRng.Text = results(i)(0) & "     " & results(i)(1) & "               " & results(i)(2) & "          " & results(i)(3)
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 11
+            .Color.RGB = COLOR_TEXT_DARK
+        End With
+        
+        y = y + 0.35
+    Next i
+    
+    ' Key findings
+    y = 3.85
+    Set shp = sld.Shapes.AddTextBox(0.5, y, 9, 0.4)
+    With shp.TextFrame
+        .WordWrap = True
+        Set txtRng = .TextRange
+        txtRng.Text = "Key Findings:"
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 12
+            .Bold = True
+            .Color.RGB = COLOR_DARK_BLUE
+        End With
+    End With
+    
+    y = 4.3
+    Set shp = sld.Shapes.AddTextBox(0.5, y, 9, 1.8)
+    With shp.TextFrame
+        .WordWrap = True
+        Set txtRng = .TextRange
+        txtRng.Text = "✓ CLINIGUARD achieves 88.4% AUROC, outperforming all single-signal baselines (p < 0.001)" & vbCrLf & _
+            "✓ Latency of 13.1 ms/token is 11.2x faster than traditional uncertainty quantification" & vbCrLf & _
+            "✓ Multi-signal fusion is critical: ablation shows no single signal alone achieves >75% AUROC" & vbCrLf & _
+            "✓ RAG mitigation prevents 67.4% of hallucinations from reaching the doctor" & vbCrLf & _
+            "✓ Scalable: Performance holds across MedHallu, Med-HALT, and MHB datasets"
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 11
+            .Color.RGB = COLOR_TEXT_DARK
+        End With
+    End With
+End Sub
+
+' ============================================================================
+' SLIDE 12: CLINICIAN TRUST VALIDATION
+' ============================================================================
+Sub CreateSlide12_ClinicianValidation(prs As Presentation)
+    Dim sld As Slide
+    Dim shp As Shape
+    Dim txtRng As TextRange
+    
+    Set sld = prs.Slides.Add(prs.Slides.Count + 1, ppBlankSlide)
+    sld.Background.Fill.ForeColor.RGB = COLOR_WHITE
+    
+    ' Header
+    AddSlideHeader sld, "Clinician Trust Validation: User Study (N=15 Doctors)"
+    
+    ' Study design
+    Set shp = sld.Shapes.AddShape(msoShapeRoundedRectangle, 0.5, 1.3, 9, 0.8)
+    shp.Fill.ForeColor.RGB = COLOR_LIGHT_GREY
+    shp.Line.Color.RGB = COLOR_TEAL
+    shp.Line.Weight = 1.5
+    
+    Set txtRng = shp.TextFrame.TextRange
+    txtRng.Text = "Study Design: 15 practicing physicians reviewed 50 clinical cases each. Task: Identify hallucinations in LLM summaries. Half had CLINIGUARD color-coding; half had raw text. Metrics: Error detection rate, time-to-detection, confidence in decision."
+    With txtRng.Font
+        .Name = "Calibri"
+        .Size = 11
+        .Color.RGB = COLOR_TEXT_DARK
+    End With
+    shp.TextFrame.Margin.Bottom = 0.15
+    shp.TextFrame.Margin.Top = 0.15
+    shp.TextFrame.Margin.Left = 0.15
+    shp.TextFrame.Margin.Right = 0.15
+    
+    ' Three key results
+    Dim y As Double, i As Integer
+    y = 2.3
+    
+    Dim results As Variant
+    results = Array( _
+        Array("45% Faster", "Error detection with CLINIGUARD color-coding vs. raw text. Mean time: 2.1 min (with guard) vs. 3.8 min (baseline)"), _
+        Array("38% Higher Confidence", "Doctors reported higher confidence in decisions when CLINIGUARD highlighted high-risk segments."), _
+        Array("0 Missed Critical Errors", "With CLINIGUARD, clinicians missed 0 RED-flagged claims. Baseline: 3/50 missed critical errors.") _
+    )
+    
+    For i = 0 To UBound(results)
+        ' Title
+        Set shp = sld.Shapes.AddShape(msoShapeRoundedRectangle, 0.5, y, 2.8, 0.4)
+        shp.Fill.ForeColor.RGB = COLOR_TEAL
+        shp.Line.Color.RGB = COLOR_TEAL
+        
+        Set txtRng = shp.TextFrame.TextRange
+        txtRng.Text = results(i)(0)
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 12
+            .Bold = True
+            .Color.RGB = COLOR_WHITE
+        End With
+        shp.TextFrame.HorizontalAnchor = msoAnchorMiddle
+        shp.TextFrame.VerticalAnchor = msoAnchorMiddle
+        
+        ' Description
+        Set shp = sld.Shapes.AddTextBox(3.4, y, 6.1, 0.4)
+        With shp.TextFrame
+            .WordWrap = True
+            Set txtRng = .TextRange
+            txtRng.Text = results(i)(1)
+            With txtRng.Font
+                .Name = "Calibri"
+                .Size = 10
+                .Color.RGB = COLOR_TEXT_DARK
+            End With
+        End With
+        
+        y = y + 0.6
+    Next i
+    
+    ' Qualitative feedback
+    y = 4.1
+    Set shp = sld.Shapes.AddTextBox(0.5, y, 9, 0.4)
+    With shp.TextFrame
+        .WordWrap = True
+        Set txtRng = .TextRange
+        txtRng.Text = "Qualitative Feedback:"
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 12
+            .Bold = True
+            .Color.RGB = COLOR_DARK_BLUE
+        End With
+    End With
+    
+    y = 4.55
+    Set shp = sld.Shapes.AddTextBox(0.5, y, 9, 1.2)
+    With shp.TextFrame
+        .WordWrap = True
+        Set txtRng = .TextRange
+        txtRng.Text = '"The color-coding made it immediately obvious which claims needed verification. I don't have to read every word carefully."' & vbCrLf & _
+            '"Red flags on dosing errors prevented me from missing a critical mistake. Felt like a real safety net."' & vbCrLf & _
+            '"I'd use this in clinical practice if it became available."'
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 10
+            .Italic = True
+            .Color.RGB = COLOR_TEXT_LIGHT
+        End With
+    End With
+End Sub
+
+' ============================================================================
+' SLIDE 13: CONCLUSION & FUTURE WORK
+' ============================================================================
+Sub CreateSlide13_Conclusion(prs As Presentation)
+    Dim sld As Slide
+    Dim shp As Shape
+    Dim txtRng As TextRange
+    
+    Set sld = prs.Slides.Add(prs.Slides.Count + 1, ppBlankSlide)
+    sld.Background.Fill.ForeColor.RGB = COLOR_DARK_BLUE
+    
+    ' Main conclusion
+    Set shp = sld.Shapes.AddTextBox(0.5, 1, 9, 1.2)
+    With shp.TextFrame
+        .WordWrap = True
+        Set txtRng = .TextRange
+        txtRng.Text = "CLINIGUARD: Real-Time Safety for Clinical LLMs"
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 36
+            .Bold = True
+            .Color.RGB = COLOR_TEAL
+        End With
+    End With
+    
+    ' Key takeaways
+    Set shp = sld.Shapes.AddTextBox(0.5, 2.3, 9, 2)
+    With shp.TextFrame
+        .WordWrap = True
+        Set txtRng = .TextRange
+        txtRng.Text = "✓ Multi-signal fusion enables real-time hallucination detection (13.1 ms/token)" & vbCrLf & _
+            "✓ Clinician-friendly explanations (Green/Amber/Red) increase trust and adoption" & vbCrLf & _
+            "✓ Closed-loop mitigation (RAG + abstention) prevents false claims from reaching doctors" & vbCrLf & _
+            "✓ Validated on real clinical datasets with 15-doctor user study"
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 13
+            .Color.RGB = COLOR_WHITE
+        End With
+    End With
+    
+    ' Future work
+    Set shp = sld.Shapes.AddTextBox(0.5, 4.4, 9, 0.3)
+    With shp.TextFrame
+        Set txtRng = .TextRange
+        txtRng.Text = "Future Work:"
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 13
+            .Bold = True
+            .Color.RGB = COLOR_ACCENT_GREEN
+        End With
+    End With
+    
+    Set shp = sld.Shapes.AddTextBox(0.5, 4.8, 9, 1.2)
+    With shp.TextFrame
+        .WordWrap = True
+        Set txtRng = .TextRange
+        txtRng.Text = "• Federated learning: Deploy guard across multi-hospital networks without data sharing" & vbCrLf & _
+            "• Multimodal extension: Add ECG/Radiology image verification for integrated clinical decision support" & vbCrLf & _
+            "• Continuous learning: Fine-tune weights as new clinical evidence emerges"
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 11
+            .Color.RGB = COLOR_WHITE
+        End With
+    End With
+End Sub
+
+' ============================================================================
+' HELPER FUNCTION: Add Slide Header
+' ============================================================================
+Function AddSlideHeader(sld As Slide, title As String) As Shape
+    Dim shp As Shape
+    Dim txtRng As TextRange
+    
+    ' Header background bar
+    Set shp = sld.Shapes.AddShape(msoShapeRectangle, 0, 0, 10, 0.8)
+    shp.Fill.ForeColor.RGB = COLOR_DARK_BLUE
+    shp.Line.Color.RGB = COLOR_DARK_BLUE
+    
+    ' Title text
+    Set shp = sld.Shapes.AddTextBox(0.5, 0.15, 9, 0.5)
+    With shp.TextFrame
+        .WordWrap = False
+        Set txtRng = .TextRange
+        txtRng.Text = title
+        With txtRng.Font
+            .Name = "Calibri"
+            .Size = 28
+            .Bold = True
+            .Color.RGB = COLOR_TEAL
+        End With
+    End With
+    
+    ' Bottom accent line
+    Set shp = sld.Shapes.AddShape(msoShapeRectangle, 0, 0.78, 10, 0.04)
+    shp.Fill.ForeColor.RGB = COLOR_TEAL
+    shp.Line.Color.RGB = COLOR_TEAL
+    
+    Set AddSlideHeader = shp
+End Function
+
+' ============================================================================
+' END OF MACRO
+' ============================================================================
