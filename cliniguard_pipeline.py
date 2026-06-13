@@ -35,6 +35,11 @@ from sklearn.metrics import (
     f1_score, confusion_matrix
 )
 from sklearn.preprocessing import StandardScaler
+try:
+    import lightgbm as lgb
+    LGBM_AVAILABLE = True
+except ImportError:
+    LGBM_AVAILABLE = False
 warnings.filterwarnings("ignore")
 
 # UTF-8 output for Windows
@@ -286,7 +291,9 @@ def risk_label(score: float) -> str:
 # UNIFIED MODEL TRAINING & EVALUATION
 # ─────────────────────────────────────────────────────────────────────────────
 def train_unified_model(df_all: pd.DataFrame):
-    """Train ONE LogisticRegression on all datasets combined (70% train)."""
+    """Train ONE fusion model on all datasets combined (70% train).
+    Uses LightGBM when available (better AUROC), falls back to LogisticRegression.
+    """
     X = df_all[FEATURES].values
     y = df_all["_label"].values
 
@@ -300,11 +307,30 @@ def train_unified_model(df_all: pd.DataFrame):
     X_train_s = scaler.fit_transform(X_train)
     X_test_s  = scaler.transform(X_test)
 
-    clf = LogisticRegression(
-        max_iter=2000, random_state=42,
-        class_weight="balanced", solver="lbfgs", C=1.0
-    )
-    clf.fit(X_train_s, y_train)
+    if LGBM_AVAILABLE:
+        print("  [INFO] Using LightGBM as the fusion model (upgraded from Logistic Regression).")
+        clf = lgb.LGBMClassifier(
+            n_estimators=300,
+            learning_rate=0.05,
+            max_depth=5,
+            num_leaves=31,
+            objective="binary",
+            class_weight="balanced",
+            random_state=42,
+            verbose=-1,          # suppress LightGBM internal logs
+        )
+        clf.fit(X_train_s, y_train,
+                eval_set=[(X_test_s, y_test)],
+                callbacks=[lgb.early_stopping(30, verbose=False),
+                           lgb.log_evaluation(period=-1)])
+    else:
+        print("  [INFO] lightgbm not found – falling back to Logistic Regression.")
+        print("         Run: pip install lightgbm   to enable the better model.")
+        clf = LogisticRegression(
+            max_iter=2000, random_state=42,
+            class_weight="balanced", solver="lbfgs", C=1.0
+        )
+        clf.fit(X_train_s, y_train)
 
     return clf, scaler, X_test_s, y_test, idx_test
 
@@ -346,8 +372,13 @@ def ablation_study(df_all: pd.DataFrame):
         sc = StandardScaler()
         X_tr = sc.fit_transform(X_tr)
         X_te = sc.transform(X_te)
-        m = LogisticRegression(max_iter=1000, random_state=42,
-                               class_weight="balanced")
+        if LGBM_AVAILABLE:
+            m = lgb.LGBMClassifier(n_estimators=200, learning_rate=0.05,
+                                   max_depth=4, class_weight="balanced",
+                                   random_state=42, verbose=-1)
+        else:
+            m = LogisticRegression(max_iter=1000, random_state=42,
+                                   class_weight="balanced")
         m.fit(X_tr, y_tr)
         prob = m.predict_proba(X_te)[:, 1]
         try:
@@ -378,8 +409,13 @@ def cross_validate(df_all: pd.DataFrame):
         sc = StandardScaler()
         X_tr = sc.fit_transform(X[tr_idx])
         X_te = sc.transform(X[te_idx])
-        m = LogisticRegression(max_iter=1000, random_state=42,
-                               class_weight="balanced")
+        if LGBM_AVAILABLE:
+            m = lgb.LGBMClassifier(n_estimators=200, learning_rate=0.05,
+                                   max_depth=4, class_weight="balanced",
+                                   random_state=42, verbose=-1)
+        else:
+            m = LogisticRegression(max_iter=1000, random_state=42,
+                                   class_weight="balanced")
         m.fit(X_tr, y[tr_idx])
         prob = m.predict_proba(X_te)[:, 1]
         try:
@@ -438,10 +474,18 @@ if args.source == "auto":
     prec, rec, _  = precision_recall_curve(y_test, y_prob)
     p95r          = prec[np.argmin(np.abs(rec - 0.95))]
 
-    print(f"\n  Learned Signal Weights (Logistic Regression Coefficients):")
-    for feat, w in zip(FEATURES, clf.coef_[0]):
-        bar = "#" * int(abs(w * 5) + 1)
-        print(f"    {feat:<12}  coef = {w:>+8.4f}  {bar}")
+    # Print model-specific feature contributions
+    if LGBM_AVAILABLE and isinstance(clf, lgb.LGBMClassifier):
+        print(f"\n  Learned Signal Importance (LightGBM Feature Gain):")
+        importances = clf.feature_importances_
+        for feat, imp in zip(FEATURES, importances):
+            bar = "#" * int(imp / max(importances) * 20 + 1)
+            print(f"    {feat:<12}  importance = {imp:>8.1f}  {bar}")
+    else:
+        print(f"\n  Learned Signal Weights (Logistic Regression Coefficients):")
+        for feat, w in zip(FEATURES, clf.coef_[0]):
+            bar = "#" * int(abs(w * 5) + 1)
+            print(f"    {feat:<12}  coef = {w:>+8.4f}  {bar}")
 
     print(f"\n  ┌─────────────────────────────────────────────┐")
     print(f"  │  OVERALL UNIFIED MODEL PERFORMANCE          │")
@@ -463,9 +507,6 @@ if args.source == "auto":
         # Apply task-conditional risk scores
         df_src = df_src.copy()
         if m.get("y_prob") is not None:
-            df_src["risk_score"] = scaler.transform(
-                df_src[FEATURES].values
-            ).dot(clf.coef_[0]) + clf.intercept_[0]
             df_src["risk_score"] = clf.predict_proba(
                 scaler.transform(df_src[FEATURES].values)
             )[:, 1]
