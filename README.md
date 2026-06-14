@@ -45,15 +45,15 @@ git pull
 
 ### Step 2 – Make sure the model files are present
 
-Check that these three files exist in the repo root:
+Check that these three files exist in the `final_website` folder:
 
 ```
-cliniguard_model.joblib       ✅ must be present
-cliniguard_scaler.joblib      ✅ must be present
-cliniguard_lr_model.joblib    ✅ must be present
+final_website/cliniguard_model.joblib       ✅ must be present
+final_website/cliniguard_scaler.joblib      ✅ must be present
+final_website/cliniguard_lr_model.joblib    ✅ must be present
 ```
 
-If any are missing, copy them from the original machine into the repo root folder.
+If any are missing, copy them from the original machine into the `final_website` folder.
 
 ### Step 3 – Install dependencies
 
@@ -107,7 +107,7 @@ Type a medical question and answer — it will return 🟢 SAFE / 🟡 AMBIGUOUS
 |---------|-----|
 | `ModuleNotFoundError: lightgbm` | Run `pip install lightgbm` |
 | `ModuleNotFoundError: fastapi` | Run `pip install fastapi uvicorn` |
-| `FileNotFoundError: cliniguard_model.joblib` | Copy the `.joblib` files into the repo root |
+| `FileNotFoundError: cliniguard_model.joblib` | Copy the `.joblib` files into the `final_website` folder |
 | UI shows "Connection Refused" | The server isn't running — go back to Step 4 |
 | Port 8000 already in use | Run `python -m uvicorn server:app --port 8001` |
 | `python` not recognised | Make sure Python is added to PATH during installation |
@@ -126,8 +126,6 @@ cliniguard/
 ├── cliniguard_pipeline.py       ← Core: 4 signal functions
 ├── server.py                    ← FastAPI /predict endpoint
 ├── app_demo.py                  ← ▶️  Run this to start the server
-├── cliniguard_model.joblib      ← Trained LightGBM model
-├── cliniguard_scaler.joblib     ← Fitted StandardScaler
 └── PROJECT_OVERVIEW.md          ← Full project documentation
 ```
 

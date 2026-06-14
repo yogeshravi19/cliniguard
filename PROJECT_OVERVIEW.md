@@ -67,9 +67,9 @@ All four signal functions live in **`cliniguard_pipeline.py`** and are re‑impl
 
 | Model | File | Algorithm |
 |-------|------|----------|
-| **LightGBM Fusion** | `cliniguard_model.joblib` | Gradient‑boosted decision trees |
+| **LightGBM Fusion** | `final_website/cliniguard_model.joblib` | Gradient‑boosted decision trees |
 
-The model uses the **`StandardScaler`** (`cliniguard_scaler.joblib`) fitted on the training set.
+The model uses the **`StandardScaler`** (`final_website/cliniguard_scaler.joblib`) fitted on the training set.
 
 **Performance (LightGBM on full dataset):**
 - AUROC: **0.73**
@@ -89,9 +89,9 @@ flowchart TD
     D --> D2["C-AAS\nClinical context"]
     D --> D3["MED-EEM\nEpistemic entropy"]
     D --> D4["CDT\nCosine drift"]
-    D1 & D2 & D3 & D4 --> E["📐 StandardScaler\nFit on training set\ncliniguard_scaler.joblib"]
+    D1 & D2 & D3 & D4 --> E["📐 StandardScaler\nFit on training set\nfinal_website/cliniguard_scaler.joblib"]
     E -->|"scaled 4D vector\n(X_train)"| F["🌲 LightGBM Training\ntrain_model.py\nmax_depth=5 · n_estimators=200"]
-    F --> G["💾 cliniguard_model.joblib\nTrained LightGBM Fusion Model"]
+    F --> G["💾 final_website/cliniguard_model.joblib\nTrained LightGBM Fusion Model"]
     G --> H["📊 Evaluation\nAUROC 0.73 · F1 0.61\nAvg Precision 0.7354"]
     H --> I["📋 cliniguard_summary.csv\nFinal results for paper"]
     G --> K["🌐 FastAPI server.py\nPOST /predict\nLoads model + scaler at startup"]
@@ -137,6 +137,9 @@ f:/cliniguard/
 │
 ├── 📁 final_website/            ← Web UI, notebooks & demo assets
 │   ├── index.html               ← Dark-mode glass-morphism web UI
+│   ├── cliniguard_model.joblib  ← 💾 Trained LightGBM model
+│   ├── cliniguard_lr_model.joblib ← 💾 Trained LR model
+│   ├── cliniguard_scaler.joblib ← 📐 Fitted StandardScaler
 │   ├── model_comparison_fixed.ipynb  ← Compare LightGBM vs LR
 │   ├── CLINIGUARD_Colab.ipynb   ← Google Colab version
 │   └── Copy_of_CLINIGUARD_Colab.ipynb
@@ -155,10 +158,6 @@ f:/cliniguard/
 ├── app_demo.py                  ← Run the server locally
 ├── merge_parquet_to_csv.py      ← Merge raw parquet → CSV
 │
-├── cliniguard_all_datasets.csv  ← 🗄️ Master training data (~37 MB)
-├── cliniguard_model.joblib      ← 💾 Trained LightGBM model
-├── cliniguard_lr_model.joblib   ← 💾 Trained LR model
-├── cliniguard_scaler.joblib     ← 📐 Fitted StandardScaler
 ├── cliniguard_results.csv       ← Inference results on full dataset
 ├── cliniguard_summary.csv       ← Summary metrics for the paper
 │
@@ -253,11 +252,10 @@ Labels: `0` = SAFE · `1` = AMBIGUOUS · `2` = RED (hallucination)
 # 1. Install dependencies
 pip install lightgbm scikit-learn pandas numpy fastapi uvicorn joblib
 
-# 2. Ensure the following files are present:
-#    cliniguard_all_datasets.csv
-#    cliniguard_model.joblib
-#    cliniguard_lr_model.joblib
-#    cliniguard_scaler.joblib
+# 2. Ensure the following files are present in the final_website/ folder:
+#    final_website/cliniguard_model.joblib
+#    final_website/cliniguard_lr_model.joblib
+#    final_website/cliniguard_scaler.joblib
 
 # 3. Run a prediction from the command line
 python cliniguard_inference.py --question "What is the dose of aspirin?" --answer "Aspirin should be taken 500mg twice daily."
@@ -274,7 +272,7 @@ python app_demo.py
 Before submitting a pull request, verify all of the following:
 
 - [ ] `cliniguard_all_datasets.csv` exists in the repo root (≈ 37 MB).
-- [ ] `cliniguard_model.joblib`, `cliniguard_lr_model.joblib`, `cliniguard_scaler.joblib` are all present.
+- [ ] `final_website/cliniguard_model.joblib`, `final_website/cliniguard_lr_model.joblib`, `final_website/cliniguard_scaler.joblib` are all present.
 - [ ] `python train_lr_fixed.py` runs without errors and produces `cliniguard_lr_model.joblib`.
 - [ ] `python train_model.py` runs without errors and produces `cliniguard_model.joblib`.
 - [ ] `model_comparison_fixed.ipynb` runs top‑to‑bottom and shows a metrics table + two bar plots.
@@ -286,7 +284,7 @@ Before submitting a pull request, verify all of the following:
 
 ## 📄 Next Steps for Publication <a name="publication"></a>
 
-1. **Freeze model files** – commit `cliniguard_model.joblib` and `cliniguard_lr_model.joblib` to the repo.
+1. **Freeze model files** – commit `final_website/cliniguard_model.joblib` and `final_website/cliniguard_lr_model.joblib` to the repo.
 2. **Export results** – run the notebook and save the metrics table to `cliniguard_summary.csv`.
 3. **Generate the PPT** – use `cliniguard_ppt_prompt.txt` with an LLM to produce `CLINIGUARD.pptx`.
 4. **Write the paper** – use `FINAL_RESULTS.md` + `dataset_overview.md` for the methods and results sections.
@@ -301,9 +299,9 @@ Before submitting a pull request, verify all of the following:
 |------|---------|
 | [cliniguard_pipeline.py](cliniguard_pipeline.py) | ⭐ Core signal functions – start here |
 | [cliniguard_all_datasets.csv](cliniguard_all_datasets.csv) | Master training data |
-| [cliniguard_model.joblib](cliniguard_model.joblib) | Trained LightGBM model |
-| [cliniguard_lr_model.joblib](cliniguard_lr_model.joblib) | Trained LR model |
-| [cliniguard_scaler.joblib](cliniguard_scaler.joblib) | Fitted StandardScaler |
+| [final_website/cliniguard_model.joblib](final_website/cliniguard_model.joblib) | Trained LightGBM model |
+| [final_website/cliniguard_lr_model.joblib](final_website/cliniguard_lr_model.joblib) | Trained LR model |
+| [final_website/cliniguard_scaler.joblib](final_website/cliniguard_scaler.joblib) | Fitted StandardScaler |
 | [model_comparison_fixed.ipynb](final_website/model_comparison_fixed.ipynb) | Evaluation notebook |
 | [server.py](server.py) | FastAPI inference endpoint |
 | [final_website/index.html](final_website/index.html) | Web demo UI |

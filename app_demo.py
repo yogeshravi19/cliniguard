@@ -24,8 +24,8 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 # Load the model & scaler – they live in the same directory as this script.
 # ---------------------------------------------------------------------------
-MODEL_PATH = Path(__file__).parent / "cliniguard_model.joblib"
-SCALER_PATH = Path(__file__).parent / "cliniguard_scaler.joblib"
+MODEL_PATH = Path(__file__).parent / "final_website" / "cliniguard_model.joblib"
+SCALER_PATH = Path(__file__).parent / "final_website" / "cliniguard_scaler.joblib"
 
 @st.cache_resource
 

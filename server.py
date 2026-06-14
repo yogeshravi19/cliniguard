@@ -29,8 +29,8 @@ except ImportError as e:
 
 # Load model and scaler
 BASE_DIR = Path(__file__).parent
-MODEL_PATH = BASE_DIR / "cliniguard_model.joblib"
-SCALER_PATH = BASE_DIR / "cliniguard_scaler.joblib"
+MODEL_PATH = BASE_DIR / "final_website" / "cliniguard_model.joblib"
+SCALER_PATH = BASE_DIR / "final_website" / "cliniguard_scaler.joblib"
 
 if not MODEL_PATH.exists() or not SCALER_PATH.exists():
     print(f"Error: Saved model or scaler not found at {BASE_DIR}.")

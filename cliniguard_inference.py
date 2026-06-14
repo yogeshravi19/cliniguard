@@ -8,8 +8,8 @@ import math
 # Import feature functions from the main pipeline (relative import)
 from cliniguard_pipeline import tokenize, med_isp, c_aas, med_eem, cdt, classify_task, risk_label, FEATURES
 
-MODEL_PATH = Path(__file__).parent / "cliniguard_model.joblib"
-SCALER_PATH = Path(__file__).parent / "cliniguard_scaler.joblib"
+MODEL_PATH = Path(__file__).parent / "final_website" / "cliniguard_model.joblib"
+SCALER_PATH = Path(__file__).parent / "final_website" / "cliniguard_scaler.joblib"
 
 def load_artifacts():
     clf = joblib.load(MODEL_PATH)
