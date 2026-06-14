@@ -142,5 +142,22 @@ See **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)** for the complete:
 - Publication guide
 
 ---
+Step 1: Install the required packages
+Open a terminal in the cloned cliniguard folder and run:
 
+bash
+pip install fastapi uvicorn joblib scikit-learn lightgbm numpy pandas
+(You only have to do this once on the new laptop).
+
+Step 2: Start the Server
+In the same terminal, run:
+
+bash
+python app_demo.py
+You will see a message saying INFO: Uvicorn running on http://0.0.0.0:8000. Keep this terminal window open!
+
+Step 3: Open the Website
+Simply go to the final_website folder in your File Explorer and double-click the index.html file to open it in your browser.
+
+The web interface will automatically connect to your running server, and you can start testing hallucination detection immediately!
 *Last updated: 2026‑06‑14*
