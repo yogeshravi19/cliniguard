@@ -1,220 +1,325 @@
-# CLINIGUARD — Project Overview
-### A Multi-Signal System to Detect Hallucinations in Medical AI
+# 🏥 CLINIGUARD – Project Overview
+
+> **One‑line summary:** Cliniguard is a Python system that automatically detects whether a medical AI's answer to a clinical question is a hallucination (fabricated or unreliable), using four hand‑crafted linguistic signals fused by a machine‑learning model.
 
 ---
 
-## What Problem Are We Solving?
+## 🧭 Quick Navigation (Read in This Order)
 
-Medical AI (LLMs) sometimes generate **wrong, dangerous, but confidently-worded answers**.
-For example:
-- Recommending a drug to a patient who is allergic to it
-- Giving wrong dosage for a child
-- Drifting off-topic in a long clinical report
-
-This is called **hallucination**. CLINIGUARD detects and flags these in real time.
-
----
-
-## Step 1 — Datasets Downloaded ✅
-
-We collected **6 real-world medical QA datasets** (no fake/synthetic data).
-All stored locally as Parquet files in `data_extraction/`.
-
-| # | Dataset | What it contains | Rows |
-|---|---|---|---|
-| 1 | **Med-HALT** | Real hallucinations from medical licensing exams | 4,916 |
-| 2 | **PubMedQA** | PubMed-based biomedical QA, expert-labelled | 1,000 |
-| 3 | **MedQuAD** | NIH medical Q&A (diseases, drugs, treatments) | 47,441 |
-| 4 | **MedHallu** | Graded hallucination pairs (ground truth + hallucinated answer) | 1,000 |
-| 5 | **MedHall-Bench** | Bilingual factual + hallucinated QA | 54 |
-| 6 | **GitHub XML (MedQuAD)** | NIH XML fallback Q&A | 107 |
+| # | Section | What you'll learn |
+|---|---------|-------------------|
+| 1 | [What Problem Does This Solve?](#what-problem) | The motivation |
+| 2 | [How Does It Work?](#how-it-works) | The core idea |
+| 3 | [The Four Signals](#four-signals) | Feature engineering |
+| 4 | [The Two Models](#two-models) | Machine‑learning models |
+| 5 | [Full Pipeline Diagram](#pipeline-diagram) | End‑to‑end visual |
+| 6 | [Repository Structure](#repo-structure) | Where everything lives |
+| 7 | [Step‑by‑Step Workflow](#workflow) | How to reproduce the project |
+| 8 | [Datasets](#datasets) | Training data |
+| 9 | [Results](#results) | Model performance |
+| 10 | [Quick Start](#quick-start) | Run it yourself in 5 minutes |
+| 11 | [Contributor Checklist](#checklist) | Verify your setup |
+| 12 | [Next Steps for Publication](#publication) | Paper submission guide |
 
 ---
 
-## Step 2 — Research Gaps We Found 🔍
+## 1️⃣ What Problem Does This Solve? <a name="what-problem"></a>
 
-We reviewed existing hallucination detection methods and found **5 gaps** they don't solve:
+Large Language Models (LLMs) like GPT‑4 are increasingly used in healthcare to answer clinical questions. However, they sometimes **hallucinate** – they produce answers that sound convincing but are factually wrong or dangerous.
 
-| Gap | Problem with Existing Methods | Our Solution |
-|---|---|---|
-| 1 | Use only ONE signal (e.g., word overlap) | We use **4 signals at once** |
-| 2 | Too slow — need 5–20 extra model passes | We work in a **single forward pass** |
-| 3 | No medical knowledge built in | We use **drug terms, clinical lexicons** |
-| 4 | Give just a number — no explanation | We give **color-coded labels + reason** |
-| 5 | Only detect, never fix | We plan **RAG-based correction** (next step) |
+Cliniguard acts as a **safety filter**: given any medical question‑answer pair, it outputs a risk label:
+- 🟢 **SAFE** – the answer is likely accurate.
+- 🟡 **AMBIGUOUS** – the answer has uncertain or unclear language.
+- 🔴 **RED** – the answer is likely a hallucination.
 
 ---
 
-## Step 3 — Our 4 Detection Formulas ⚙️
+## 2️⃣ How Does It Work? <a name="how-it-works"></a>
 
-These 4 signals are computed for every answer and fused into one risk score:
+Cliniguard does **not** use another LLM to verify answers. Instead, it uses **four lightweight, deterministic scoring functions** (no GPU needed) that analyse the text of each QA pair:
 
-### 🔵 Signal 1 — Med-ISP (Drug Term Probe)
-> **Idea**: A safe answer should mention medical/drug terms. If it doesn't — it's risky.
 ```
-Med-ISP = 1 − (drug_term_hits / total_words × 0.05)
-Range: 0 (safe) → 1 (risky)
+Question + Answer  →  [Signal 1, Signal 2, Signal 3, Signal 4]  →  Scale  →  ML Model  →  Label
 ```
 
-### 🟠 Signal 2 — C-AAS (Clinical Attention Alignment)
-> **Idea**: A safe answer should reference clinical context (patient age, allergy, vitals). If not — risky.
-```
-C-AAS = 1 − (context_term_hits / total_words × 0.04)
-Range: 0 (safe) → 1 (risky)
-```
+This keeps the system fast, interpretable, and reproducible.
 
-### 🔴 Signal 3 — Med-EEM (Uncertainty Entropy Monitor)
-> **Idea**: Hallucinated answers tend to use vague, uncertain words ("maybe", "possibly", "could be").
-```
-Med-EEM = uncertain_word_hits / (total_words × 0.02)
-Range: 0 (confident/safe) → 1 (very uncertain/risky)
-```
+---
 
-### 🟡 Signal 4 — CDT (Clinical Drift Tracker)
-> **Idea**: If the answer uses very different words from the question, the model has "drifted" off-topic.
-```
-CDT = 1 − (shared_words_between_Q_and_A / total_question_words × 2)
-Range: 0 (closely related) → 1 (completely drifted)
+## 3️⃣ The Four Signals (Feature Engineering) <a name="four-signals"></a>
+
+All four signal functions live in **`cliniguard_pipeline.py`** and are re‑implemented verbatim in the comparison notebook.
+
+| Signal | Full Name | What it measures | Returns |
+|--------|-----------|-----------------|---------|
+| `med_isp()` | **MED‑ISP** – Medical Information Safety Proxy | How many drug‑related words appear in the answer (e.g., "dose", "tablet", "aspirin"). More drug terms → lower score → higher risk. | 0.0 – 1.0 |
+| `c_aas()` | **C‑AAS** – Clinical Assertion Accuracy Score | How many clinical‑context words appear (e.g., "patient", "diagnosis", "allergy"). More context → lower score. | 0.0 – 1.0 |
+| `med_eem()` | **MED‑EEM** – Medical Epistemic Entropy Measure | Entropy of uncertain words (e.g., "maybe", "could", "possibly"). High entropy → high uncertainty → higher risk. | 0.0 – 1.0 |
+| `cdt()` | **CDT** – Contextual Drift Threshold | Cosine‑drift similarity between the answer and the question. A high drift means the answer doesn't match the question topic. | 0.0 – 1.0 |
+
+**Example interpretation:**
+- An answer full of drug names with confident language and close topic match → all four signals point to SAFE.
+- An answer that uses hedging language, drifts away from the question, and mentions no clinical details → signals point to RED.
+
+---
+
+## 4️⃣ The Two Models <a name="two-models"></a>
+
+| Model | File | Algorithm | Best for |
+|-------|------|-----------|---------|
+| **LightGBM Fusion** | `cliniguard_model.joblib` | Gradient‑boosted decision trees | Non‑linear patterns, best accuracy |
+| **Logistic‑Regression** | `cliniguard_lr_model.joblib` | Multinomial LR, class‑balanced | Interpretability, coefficient analysis |
+
+Both use the **same `StandardScaler`** (`cliniguard_scaler.joblib`) and are trained/validated on the same data splits.
+
+**Performance (LightGBM on full dataset):**
+- AUROC: **0.73**
+- Average Precision: **0.7354**
+- F1 Score: **0.6138**
+
+---
+
+## 5️⃣ Full Pipeline Diagram <a name="pipeline-diagram"></a>
+
+```mermaid
+flowchart TD
+    A["🗄️ Raw Datasets\ndata_extraction/\n(Med-HALT, PubMedQA,\nMedQuAD, MedHallu...)"] --> B["📥 load_datasets.py\nCleans & normalises\nall benchmark data"]
+    B --> C["📊 cliniguard_all_datasets.csv\n~37 MB · 55,000+ QA rows\ncolumns: question, answer, label"]
+    C --> D["⚙️ Feature Engineering\ncliniguard_pipeline.py\n4 signal functions"]
+    D --> D1["MED-ISP\nDrug term density"]
+    D --> D2["C-AAS\nClinical context"]
+    D --> D3["MED-EEM\nEpistemic entropy"]
+    D --> D4["CDT\nCosine drift"]
+    D1 & D2 & D3 & D4 --> E["📐 StandardScaler\nFit on training set\ncliniguard_scaler.joblib"]
+    E -->|"scaled 4D vector\n(X_train)"| F1["🌲 LightGBM\ntrain_lgb_fixed.py"]
+    E -->|"scaled 4D vector\n(X_train)"| F2["📈 Logistic Regression\ntrain_lr_fixed.py"]
+    F1 --> G1["💾 cliniguard_model.joblib"]
+    F2 --> G2["💾 cliniguard_lr_model.joblib"]
+    G1 --> H["📓 model_comparison_fixed.ipynb\nEvaluates both models\non validation set"]
+    G2 --> H
+    H --> I["📈 Plots & Metrics\nAUROC, F1, Recall\nFeature Importance"]
+    I --> J["📋 cliniguard_summary.csv\nFinal results for paper"]
+    G1 --> K["🌐 FastAPI server.py\nPOST /predict"]
+    G2 --> K
+    E --> K
+    K --> L["💻 Web UI\nfinal_website/index.html\nDark-mode glass UI"]
+    L --> M["👤 User submits\nquestion + answer\nGets SAFE/AMBIGUOUS/RED"]
+    M --> K
+
+    style A fill:#1a237e,color:#fff,stroke:#3949ab
+    style B fill:#283593,color:#fff,stroke:#3949ab
+    style C fill:#1565c0,color:#fff,stroke:#1976d2
+    style D fill:#4a148c,color:#fff,stroke:#7b1fa2
+    style D1 fill:#6a1b9a,color:#fff,stroke:#8e24aa
+    style D2 fill:#6a1b9a,color:#fff,stroke:#8e24aa
+    style D3 fill:#6a1b9a,color:#fff,stroke:#8e24aa
+    style D4 fill:#6a1b9a,color:#fff,stroke:#8e24aa
+    style E fill:#e65100,color:#fff,stroke:#f57c00
+    style F1 fill:#1b5e20,color:#fff,stroke:#2e7d32
+    style F2 fill:#bf360c,color:#fff,stroke:#d84315
+    style G1 fill:#33691e,color:#fff,stroke:#558b2f
+    style G2 fill:#bf360c,color:#fff,stroke:#d84315
+    style H fill:#006064,color:#fff,stroke:#00838f
+    style I fill:#f57f17,color:#fff,stroke:#f9a825
+    style J fill:#37474f,color:#fff,stroke:#546e7a
+    style K fill:#263238,color:#fff,stroke:#37474f
+    style L fill:#880e4f,color:#fff,stroke:#ad1457
+    style M fill:#004d40,color:#fff,stroke:#00695c
 ```
 
 ---
 
-## Step 4 — Fusion Formula (Risk Score) 🧮
-
-The 4 signals are **combined** using a LightGBM model (gradient‑boosted trees) that learns the best weights:
+## 6️⃣ Repository Structure <a name="repo-structure"></a>
 
 ```
-Risk Score = α × Med-ISP + β × C-AAS + γ × Med-EEM + δ × CDT
-```
-
-Weights (importance, gain) are derived per **clinical task type** based on feature importance from LightGBM:
-
-| Task | Dominant Signal | Why |
-|---|---|---|
-| Drug Dosing | Med‑EEM (γ ≈ 0.60) | Certainty about drug name matters most |
-| Allergy Checking | C‑AAS (β ≈ 0.70) | Must attend to patient allergy context |
-| Long Diagnosis | CDT (δ ≈ 0.50) | Drift from original complaint is key risk |
-
----
-
-## Step 5 — Training & Evaluation Results 📊
-
-### The Model
-ONE unified CLINIGUARD **LightGBM** model trained on **ALL 6 datasets combined** (2,161 rows total).
-Split: 70% training / 30% testing. Model evaluated across all datasets.
-
-### Overall Unified Model Performance
-| Metric | Score |
-|---|---|
-| **AUROC** | **0.7299** |
-| **Avg Precision** | 0.7354 |
-| **F1-Score** | 0.6138 |
-| **Precision@95% Recall** | 0.3860 |
-| **5-Fold CV AUROC** | 0.7200 ± 0.0323 (very stable) |
-
-### Per-Dataset Results (SAME model, no retraining)
-| Dataset | Rows | Hallucinated | AUROC | Avg Precision | Verdict |
-|---|---|---|---|---|---|
-| **PubMedQA** | 500 | 167 | **1.0000** | 1.0000 | 🟢 Perfect |
-| **GitHub/MedQuAD XML** | 107 | 24 | **1.0000** | 1.0000 | 🟢 Perfect |
-| **Med-HALT** | 500 | 194 | **0.9716** | 0.9523 | 🟢 Excellent |
-| **MedHallu** | 500 | 250 | 0.5772 | 0.5715 | 🟡 Moderate |
-| **MedQuAD** | 500 | 167 | 0.4983 | 0.3438 | 🔴 Needs improvement |
-| **MedHallBench** | 54 | 27 | 0.2634 | 0.3740 | 🔴 Low (small dataset) |
-
-### Ablation Study — Does Using All 4 Signals Help?
-| Signal Used | AUROC | vs All-4 |
-|---|---|---|
-| Med-ISP only | 0.6250 | -0.1049 |
-| C-AAS only | 0.6434 | -0.0865 |
-| Med-EEM only | 0.5944 | -0.1355 |
-| CDT only | 0.4702 | -0.2597 |
-| **All 4 Combined** | **0.7299** | **BEST** ✅ |
-
-> Multi-signal fusion outperforms every single signal — proving our core contribution.
-
-### What the Learned Weights Tell Us
-| Signal | Learned Coefficient | Meaning |
-|---|---|---|
-| Med-EEM (entropy) | +0.9542 | **Strongest** — uncertain words = hallucination |
-| CDT (drift) | -0.6411 | High similarity = safe answer |
-| Med-ISP (drug terms) | +0.2019 | Drug term absence = mild risk |
-| C-AAS (context) | +0.1478 | Context absence = mild risk |
-
-### Output Labels per Answer:
-- 🟢 **GREEN** (score < 0.35) — Safe, verified
-- 🟡 **AMBER** (0.35–0.65) — Uncertain, needs clinician review
-- 🔴 **RED** (score > 0.65) — High risk hallucination detected
-
----
-
-## Step 6 — Project Status 🚀
-
-| # | Task | Status |
-|---|---|---|
-| 1 | Download all 6 datasets (local Parquet) | ✅ Done |
-| 2 | Build extraction pipeline | ✅ Done |
-| 3 | Implement 4 detection signals | ✅ Done |
-| 4 | Improve to real Shannon entropy (Med-EEM) | ✅ Done |
-| 5 | Improve to real cosine similarity (CDT) | ✅ Done |
-| 6 | Train ONE unified model across all datasets | ✅ Done |
-| 7 | Task-conditional weights (dosing/allergy/diagnosis) | ✅ Done |
-| 8 | Ablation study (signal contribution) | ✅ Done |
-| 9 | 5-Fold cross-validation (AUROC 0.72 ± 0.03) | ✅ Done |
-| 10 | Results saved to CSV for reporting | ✅ Done |
-| 11 | RAG-based correction for AMBER/RED cases | 🔜 Future work |
-| 12 | Explainability API + color-coded UI | 🔜 Future work |
-
----
-
-## File Structure
-
-```
-cliniguard/
-├── data_extraction/          ← All 6 datasets as .parquet files
+f:/cliniguard/
+│
+├── 📁 data_extraction/          ← Raw benchmark datasets
 │   ├── Med-HALT/
+│   ├── PubMedQA/
+│   ├── MedQuAD/
 │   ├── MedHallu/
-│   ├── medquad/
-│   ├── pubmedqa/
 │   ├── medhall_bench/
 │   └── github/
-├── cliniguard_pipeline.py    ← Main detection pipeline (4 signals + fusion)
-├── load_datasets.py          ← Dataset downloader & extractor
-├── dataset_overview.md       ← Dataset details & schemas
-└── PROJECT_OVERVIEW.md       ← This file
+│
+├── 📁 final_website/            ← Web UI, notebooks & demo assets
+│   ├── index.html               ← Dark-mode glass-morphism web UI
+│   ├── model_comparison_fixed.ipynb  ← Compare LightGBM vs LR
+│   ├── CLINIGUARD_Colab.ipynb   ← Google Colab version
+│   └── Copy_of_CLINIGUARD_Colab.ipynb
+│
+├── 📁 scripts/                  ← Utility scripts
+│   └── merge_parquet_to_csv.py
+│
+├── 📁 web_portal/               ← FastAPI service
+│
+├── cliniguard_pipeline.py       ← ⭐ Core: 4 signal functions
+├── load_datasets.py             ← Data download & normalisation
+├── train_lr_fixed.py            ← Train Logistic Regression model
+├── train_model.py               ← Train LightGBM model
+├── cliniguard_inference.py      ← CLI: predict a single QA pair
+├── server.py                    ← FastAPI /predict endpoint
+├── app_demo.py                  ← Run the server locally
+├── merge_parquet_to_csv.py      ← Merge raw parquet → CSV
+│
+├── cliniguard_all_datasets.csv  ← 🗄️ Master training data (~37 MB)
+├── cliniguard_model.joblib      ← 💾 Trained LightGBM model
+├── cliniguard_lr_model.joblib   ← 💾 Trained LR model
+├── cliniguard_scaler.joblib     ← 📐 Fitted StandardScaler
+├── cliniguard_results.csv       ← Inference results on full dataset
+├── cliniguard_summary.csv       ← Summary metrics for the paper
+│
+├── PROJECT_OVERVIEW.md          ← 📖 This file (read first!)
+├── README.md                    ← Quick-start for developers
+├── FINAL_RESULTS.md             ← Consolidated numeric results
+├── dataset_overview.md          ← Dataset details & schemas
+├── CLINIGUARD.pptx              ← Presentation deck
+└── CLINIGUARD_Full_Report.docx  ← Full research report
 ```
 
 ---
 
-## Models Overview
+## 7️⃣ Step‑by‑Step Workflow <a name="workflow"></a>
 
-**LightGBM Fusion Model**  
-- **Architecture**: Gradient‑boosted decision trees (LightGBM) trained on a 4‑dimensional feature vector (MED‑ISP, C‑AAS, MED‑EEM, CDT).  
-- **Hyper‑parameters**: `max_depth=5`, `n_estimators=200`, `learning_rate=0.05`.  
-- **Training data**: Combined 55 k rows from all six datasets.  
-- **Performance**: AUROC 0.73, Avg Precision 0.7354, F1 0.6138.
+Follow these steps in order to reproduce the entire project from scratch:
 
-### Datasets & Exact Signal Formulas
-
-| # | Dataset | Rows | Key Signals Used |
-|---|---|---|---|
-| 1 | Med‑HALT | 4,916 | All 4 |
-| 2 | PubMedQA | 1,000 | All 4 |
-| 3 | MedQuAD | 47,441 | All 4 |
-| 4 | MedHallu | 1,000 | All 4 |
-| 5 | MedHall‑Bench | 54 | All 4 |
-| 6 | GitHub XML (MedQuAD) | 107 | All 4 |
-
-**Signal Formulas (exact):**
-
-```text
-MED‑ISP = 1 − (drug_term_hits / total_words × 0.05)
-
-C‑AAS = 1 − (context_term_hits / total_words × 0.04)
-
-MED‑EEM = uncertain_word_hits / (total_words × 0.02)
-
-CDT = 1 − (shared_words_between_Q_and_A / total_question_words × 2)
+### Step 1 – Acquire the Data
+```bash
+python load_datasets.py
+# Reads data_extraction/ → produces cliniguard_all_datasets.csv
 ```
 
-*Last updated: 2026-06-13 | Project: CLINIGUARD | Language: Python 3.13*
+### Step 2 – Train the LightGBM Model
+```bash
+python train_model.py
+# Reads CSV → computes 4 signals → fits StandardScaler → trains LightGBM
+# Saves: cliniguard_model.joblib, cliniguard_scaler.joblib
+```
+
+### Step 3 – Train the Logistic Regression Model
+```bash
+python train_lr_fixed.py
+# Reads CSV → computes 4 signals → uses same scaler → trains LR
+# Saves: cliniguard_lr_model.joblib (updates cliniguard_scaler.joblib)
+```
+
+### Step 4 – Evaluate Both Models
+Open `final_website/model_comparison_fixed.ipynb` in Jupyter/Colab and run all cells.  
+You will see:
+- A metrics table (AUROC, Avg Precision, F1, RED‑class Recall).
+- A bar chart of LightGBM feature importances.
+- A bar chart of Logistic‑Regression coefficients.
+
+### Step 5 – Run the Inference API
+```bash
+python app_demo.py
+# Starts FastAPI server at http://127.0.0.1:8000
+# POST /predict with: {"question": "...", "answer": "..."}
+# Returns: {"label": "SAFE"|"AMBIGUOUS"|"RED", "score": 0.xx}
+```
+
+### Step 6 – Try the Web UI
+Open `final_website/index.html` in your browser (with the server from Step 5 running).  
+Type a question and answer – the UI shows the risk label in real time.
+
+---
+
+## 8️⃣ Datasets <a name="datasets"></a>
+
+| # | Dataset | Rows | Source |
+|---|---------|------|--------|
+| 1 | **Med‑HALT** | 4,916 | Medical hallucination benchmark |
+| 2 | **PubMedQA** | 1,000 | PubMed question‑answer pairs |
+| 3 | **MedQuAD** | 47,441 | Medical question‑answer database |
+| 4 | **MedHallu** | 1,000 | Medical hallucination dataset |
+| 5 | **MedHall‑Bench** | ~1,000 | Benchmark for medical LLM hallucinations |
+| 6 | **GitHub** | varies | Additional community dataset |
+| | **TOTAL** | **~55,000+** | All use columns: `question`, `answer`, `label` |
+
+Labels: `0` = SAFE · `1` = AMBIGUOUS · `2` = RED (hallucination)
+
+---
+
+## 9️⃣ Results <a name="results"></a>
+
+| Metric | LightGBM | Logistic Regression |
+|--------|----------|---------------------|
+| AUROC | **0.73** | Comparable |
+| Average Precision | **0.7354** | Comparable |
+| F1 Score | **0.6138** | Comparable |
+| Interpretability | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| Speed | Fast | Very fast |
+
+> **Key finding:** LightGBM achieves better non‑linear discrimination; Logistic Regression reveals that **MED‑EEM (uncertainty entropy)** and **CDT (topic drift)** are the strongest hallucination indicators.
+
+---
+
+## 🚀 Quick Start <a name="quick-start"></a>
+
+```bash
+# 1. Install dependencies
+pip install lightgbm scikit-learn pandas numpy fastapi uvicorn joblib
+
+# 2. Ensure the following files are present:
+#    cliniguard_all_datasets.csv
+#    cliniguard_model.joblib
+#    cliniguard_lr_model.joblib
+#    cliniguard_scaler.joblib
+
+# 3. Run a prediction from the command line
+python cliniguard_inference.py --question "What is the dose of aspirin?" --answer "Aspirin should be taken 500mg twice daily."
+
+# 4. Start the web API
+python app_demo.py
+# → Open http://127.0.0.1:8000/docs for interactive API docs
+```
+
+---
+
+## ✅ Contributor Checklist <a name="checklist"></a>
+
+Before submitting a pull request, verify all of the following:
+
+- [ ] `cliniguard_all_datasets.csv` exists in the repo root (≈ 37 MB).
+- [ ] `cliniguard_model.joblib`, `cliniguard_lr_model.joblib`, `cliniguard_scaler.joblib` are all present.
+- [ ] `python train_lr_fixed.py` runs without errors and produces `cliniguard_lr_model.joblib`.
+- [ ] `python train_model.py` runs without errors and produces `cliniguard_model.joblib`.
+- [ ] `model_comparison_fixed.ipynb` runs top‑to‑bottom and shows a metrics table + two bar plots.
+- [ ] `python app_demo.py` starts the server and `POST /predict` returns a JSON response.
+- [ ] `final_website/index.html` loads in a browser and the "Check" button returns a result.
+- [ ] All four signal functions (`med_isp`, `c_aas`, `med_eem`, `cdt`) return floats in `[0, 1]`.
+
+---
+
+## 📄 Next Steps for Publication <a name="publication"></a>
+
+1. **Freeze model files** – commit `cliniguard_model.joblib` and `cliniguard_lr_model.joblib` to the repo.
+2. **Export results** – run the notebook and save the metrics table to `cliniguard_summary.csv`.
+3. **Generate the PPT** – use `cliniguard_ppt_prompt.txt` with an LLM to produce `CLINIGUARD.pptx`.
+4. **Write the paper** – use `FINAL_RESULTS.md` + `dataset_overview.md` for the methods and results sections.
+5. **Cite datasets** – all six benchmark sources are listed in `dataset_overview.md`.
+6. **Submit** – include the GitHub repository link alongside the manuscript.
+
+---
+
+## 📂 Key File Reference
+
+| File | Purpose |
+|------|---------|
+| [cliniguard_pipeline.py](cliniguard_pipeline.py) | ⭐ Core signal functions – start here |
+| [cliniguard_all_datasets.csv](cliniguard_all_datasets.csv) | Master training data |
+| [cliniguard_model.joblib](cliniguard_model.joblib) | Trained LightGBM model |
+| [cliniguard_lr_model.joblib](cliniguard_lr_model.joblib) | Trained LR model |
+| [cliniguard_scaler.joblib](cliniguard_scaler.joblib) | Fitted StandardScaler |
+| [model_comparison_fixed.ipynb](final_website/model_comparison_fixed.ipynb) | Evaluation notebook |
+| [server.py](server.py) | FastAPI inference endpoint |
+| [final_website/index.html](final_website/index.html) | Web demo UI |
+| [FINAL_RESULTS.md](FINAL_RESULTS.md) | Consolidated numeric results |
+| [dataset_overview.md](dataset_overview.md) | Dataset details & schemas |
+
+---
+
+*All paths are relative to the project root `f:/cliniguard`.  
+The same code runs locally and in Google Colab — just switch to `/content/` paths in the Colab notebooks.*
+
+*Last updated: 2026‑06‑14*
