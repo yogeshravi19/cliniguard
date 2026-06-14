@@ -63,14 +63,13 @@ All four signal functions live in **`cliniguard_pipeline.py`** and are re‑impl
 
 ---
 
-## 4️⃣ The Two Models <a name="two-models"></a>
+## 4️⃣ The Model <a name="two-models"></a>
 
-| Model | File | Algorithm | Best for |
-|-------|------|-----------|---------|
-| **LightGBM Fusion** | `cliniguard_model.joblib` | Gradient‑boosted decision trees | Non‑linear patterns, best accuracy |
-| **Logistic‑Regression** | `cliniguard_lr_model.joblib` | Multinomial LR, class‑balanced | Interpretability, coefficient analysis |
+| Model | File | Algorithm |
+|-------|------|----------|
+| **LightGBM Fusion** | `cliniguard_model.joblib` | Gradient‑boosted decision trees |
 
-Both use the **same `StandardScaler`** (`cliniguard_scaler.joblib`) and are trained/validated on the same data splits.
+The model uses the **`StandardScaler`** (`cliniguard_scaler.joblib`) fitted on the training set.
 
 **Performance (LightGBM on full dataset):**
 - AUROC: **0.73**
@@ -83,7 +82,7 @@ Both use the **same `StandardScaler`** (`cliniguard_scaler.joblib`) and are trai
 
 ```mermaid
 flowchart TD
-    A["🗄️ Raw Datasets\ndata_extraction/\n(Med-HALT, PubMedQA,\nMedQuAD, MedHallu...)"] --> B["📥 load_datasets.py\nCleans & normalises\nall benchmark data"]
+    A["🗄️ Raw Datasets\ndata_extraction/\nMed-HALT · PubMedQA · MedQuAD · MedHallu"] --> B["📥 load_datasets.py\nCleans & normalises\nall benchmark data"]
     B --> C["📊 cliniguard_all_datasets.csv\n~37 MB · 55,000+ QA rows\ncolumns: question, answer, label"]
     C --> D["⚙️ Feature Engineering\ncliniguard_pipeline.py\n4 signal functions"]
     D --> D1["MED-ISP\nDrug term density"]
@@ -91,20 +90,16 @@ flowchart TD
     D --> D3["MED-EEM\nEpistemic entropy"]
     D --> D4["CDT\nCosine drift"]
     D1 & D2 & D3 & D4 --> E["📐 StandardScaler\nFit on training set\ncliniguard_scaler.joblib"]
-    E -->|"scaled 4D vector\n(X_train)"| F1["🌲 LightGBM\ntrain_lgb_fixed.py"]
-    E -->|"scaled 4D vector\n(X_train)"| F2["📈 Logistic Regression\ntrain_lr_fixed.py"]
-    F1 --> G1["💾 cliniguard_model.joblib"]
-    F2 --> G2["💾 cliniguard_lr_model.joblib"]
-    G1 --> H["📓 model_comparison_fixed.ipynb\nEvaluates both models\non validation set"]
-    G2 --> H
-    H --> I["📈 Plots & Metrics\nAUROC, F1, Recall\nFeature Importance"]
-    I --> J["📋 cliniguard_summary.csv\nFinal results for paper"]
-    G1 --> K["🌐 FastAPI server.py\nPOST /predict"]
-    G2 --> K
+    E -->|"scaled 4D vector\n(X_train)"| F["🌲 LightGBM Training\ntrain_model.py\nmax_depth=5 · n_estimators=200"]
+    F --> G["💾 cliniguard_model.joblib\nTrained LightGBM Fusion Model"]
+    G --> H["📊 Evaluation\nAUROC 0.73 · F1 0.61\nAvg Precision 0.7354"]
+    H --> I["📋 cliniguard_summary.csv\nFinal results for paper"]
+    G --> K["🌐 FastAPI server.py\nPOST /predict\nLoads model + scaler at startup"]
     E --> K
-    K --> L["💻 Web UI\nfinal_website/index.html\nDark-mode glass UI"]
-    L --> M["👤 User submits\nquestion + answer\nGets SAFE/AMBIGUOUS/RED"]
+    K --> L["💻 Web UI\nfinal_website/index.html\nDark-mode glass-morphism"]
+    L --> M["👤 User submits\nquestion + answer"]
     M --> K
+    K --> N["🏷️ Label Output\n🟢 SAFE / 🟡 AMBIGUOUS / 🔴 RED"]
 
     style A fill:#1a237e,color:#fff,stroke:#3949ab
     style B fill:#283593,color:#fff,stroke:#3949ab
@@ -115,16 +110,14 @@ flowchart TD
     style D3 fill:#6a1b9a,color:#fff,stroke:#8e24aa
     style D4 fill:#6a1b9a,color:#fff,stroke:#8e24aa
     style E fill:#e65100,color:#fff,stroke:#f57c00
-    style F1 fill:#1b5e20,color:#fff,stroke:#2e7d32
-    style F2 fill:#bf360c,color:#fff,stroke:#d84315
-    style G1 fill:#33691e,color:#fff,stroke:#558b2f
-    style G2 fill:#bf360c,color:#fff,stroke:#d84315
-    style H fill:#006064,color:#fff,stroke:#00838f
-    style I fill:#f57f17,color:#fff,stroke:#f9a825
-    style J fill:#37474f,color:#fff,stroke:#546e7a
+    style F fill:#1b5e20,color:#fff,stroke:#2e7d32
+    style G fill:#33691e,color:#fff,stroke:#558b2f
+    style H fill:#f57f17,color:#fff,stroke:#f9a825
+    style I fill:#37474f,color:#fff,stroke:#546e7a
     style K fill:#263238,color:#fff,stroke:#37474f
     style L fill:#880e4f,color:#fff,stroke:#ad1457
     style M fill:#004d40,color:#fff,stroke:#00695c
+    style N fill:#b71c1c,color:#fff,stroke:#c62828
 ```
 
 ---
