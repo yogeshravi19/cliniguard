@@ -18,7 +18,7 @@ pip install fastapi uvicorn lightgbm scikit-learn joblib
 python -m uvicorn main:app --host 127.0.0.1 --port 8000
 ```
 
-Then open **http://127.0.0.1:8000/** in your browser.
+Then open **<http://127.0.0.1:8000/>** in your browser.
 
 ## Tabs
 
