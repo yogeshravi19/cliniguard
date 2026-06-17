@@ -119,6 +119,51 @@ flowchart TD
     style M fill:#004d40,color:#fff,stroke:#00695c
     style N fill:#b71c1c,color:#fff,stroke:#c62828
 ```
+## 🛠️ Methodology
+
+The **Cliniguard** project follows a systematic, reproducible methodology that spans data collection, signal engineering, model training, evaluation, and deployment. Below is a step‑by‑step overview of the process we adopt:
+
+1. **Data Acquisition**
+   - Curate a diverse set of medical question‑answer pairs from publicly available datasets and domain‑specific sources.
+   - Annotate each pair with a **ground‑truth safety label** (`SAFE`, `AMBIGUOUS`, `UNSAFE`).
+
+2. **Signal Design**
+   - Engineer four handcrafted linguistic signals that capture hallucinatory patterns:
+     - **Lexical Consistency** – checks for contradictory terminology.
+     - **Numerical Plausibility** – validates numerical claims against known medical ranges.
+     - **Citation Presence** – assesses whether statements are backed by references.
+     - **Semantic Coherence** – measures the logical flow using sentence‑level embeddings.
+   - Each signal outputs a numeric score; higher scores indicate higher risk.
+
+3. **Feature Generation**
+   - Combine the four signal scores with basic meta‑features (e.g., answer length, question complexity) to form a feature vector for each instance.
+
+4. **Model Training**
+   - Train a **LightGBM** gradient‑boosted tree classifier on the feature vectors.
+   - Use stratified 5‑fold cross‑validation to ensure robustness across the three safety classes.
+   - Optimize hyper‑parameters (learning rate, max depth, number of leaves) via Bayesian search.
+
+5. **Evaluation**
+   - Report standard classification metrics (accuracy, precision, recall, F1) for each class.
+   - Additionally provide a **confusion matrix** and **ROC‑AUC** to illustrate trade‑offs between false positives and false negatives.
+   - Conduct an error‑analysis to iteratively refine signal definitions.
+
+6. **Model Serialization**
+   - Persist the trained model, feature scaler, and LightGBM learner as `*.joblib` artifacts in the `final_website` directory.
+   - Version‑control these artifacts to enable reproducible deployments.
+
+7. **Deployment**
+   - Expose the model via a FastAPI endpoint (`/predict`) that accepts a question and answer pair and returns the safety classification.
+   - The frontend (`index.html`) calls the endpoint and visualizes the result with intuitive color‑coded badges.
+   - Containerise the API using Docker for consistent environment replication when scaling.
+
+8. **Continuous Improvement**
+   - Set up a feedback loop where user‑reported false positives/negatives are collected, re‑labeled, and fed back into the training pipeline.
+   - Periodically retrain the LightGBM model with the expanded dataset to keep up with evolving medical knowledge.
+
+By adhering to this methodology, **Cliniguard** ensures a transparent, auditable, and maintainable pipeline that can be extended with additional signals or alternative models in the future.
+
+---
 
 ---
 
