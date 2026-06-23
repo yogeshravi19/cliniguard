@@ -485,7 +485,7 @@ quadrantChart
 | Algorithm | AUROC | Training Latency | Inference Latency | Deterministic | Selected Status |
 |---|---|---|---|---|---|
 | **LightGBM** | **0.7850** | ~5 sec | <1 ms | Yes | **Primary ✅** |
-| Logistic Regression | 0.68 | <1 sec | <0.5 ms | Yes | Secondary |
+| **Logistic Regression** | **0.7299** | <1 sec | <0.5 ms | Yes | Secondary |
 | Random Forest | 0.71 | ~8 sec | ~2 ms | Partial | Discarded |
 | Support Vector Machine | 0.67 | ~12 sec | ~3 ms | No | Discarded |
 | Naive Bayes | 0.59 | <1 sec | <0.5 ms | Partial | Discarded |
@@ -495,11 +495,12 @@ quadrantChart
 
 ### 8.3 Deep Learning Model Comparison
 
-As part of the final evaluation, two Multilayer Perceptron (MLP) architectures were trained on the same 4 signal features and compared against LightGBM:
+As part of the final evaluation, two Multilayer Perceptron (MLP) architectures were trained on the same 4 signal features and compared against LightGBM and Logistic Regression:
 
 | Model | Architecture | AUROC | Avg Precision | F1-Score | Prec@95%Recall |
 |-------|-------------|-------|---------------|----------|----------------|
 | **LightGBM** ✅ | Gradient Boosted Trees | **0.7850** | **0.7829** | **0.6448** | **0.4072** |
+| **Logistic Regression** | Linear (4 coefficients) | 0.7299 | 0.7354 | 0.6138 | 0.3860 |
 | Deep Neural Network | 128 → 64 → 32 → 16 (ReLU) | 0.7096 | 0.7260 | 0.5714 | 0.3873 |
 | Wide Neural Network | 256 → 128 (ReLU) | 0.7369 | 0.7528 | 0.6276 | 0.3873 |
 
@@ -812,13 +813,15 @@ xychart-beta
 
 ### 14.1 Aggregate System Efficacy
 
-| Performance Indicator | LightGBM | DNN (4 Layers) | DNN (Wide) |
-|---|---|---|---|
-| Aggregate AUROC | **0.7850** | 0.7096 | 0.7369 |
-| Aggregate Precision | **0.7829** | 0.7260 | 0.7528 |
-| Aggregate F1-Score | **0.6448** | 0.5714 | 0.6276 |
-| Prec@95%Recall | **0.4072** | 0.3873 | 0.3873 |
-| Cross-Validation AUROC | **0.7949 ± 0.0164** | N/A | N/A |
+All models evaluated on the same 70/30 stratified split (2,161 samples, seed=42).
+
+| Performance Indicator | LightGBM ✅ | Logistic Regression | DNN (4 Layers) | DNN (Wide) |
+|---|---|---|---|---|
+| Aggregate AUROC | **0.7850** | 0.7299 | 0.7096 | 0.7369 |
+| Aggregate Avg Precision | **0.7829** | 0.7354 | 0.7260 | 0.7528 |
+| Aggregate F1-Score | **0.6448** | 0.6138 | 0.5714 | 0.6276 |
+| Prec@95%Recall | **0.4072** | 0.3860 | 0.3873 | 0.3873 |
+| 5-Fold CV AUROC | **0.7949 ± 0.0164** | 0.720 ± 0.032 | N/A | N/A |
 
 ### 14.2 Empirical Findings Analysis
 
@@ -922,11 +925,15 @@ The system verifies that highly efficient, CPU-bound classification models can a
 | Total Training Data Points | 2,161 |
 | Feature Vector Dimensions | 4 |
 | Primary Classification Engine | LightGBM |
-| Models Evaluated | 3 (LightGBM, DNN-4L, DNN-Wide) |
-| Validated AUROC (LightGBM) | **0.7850** |
-| Validated AUROC (DNN-4L) | 0.7096 |
-| Validated AUROC (DNN-Wide) | 0.7369 |
+| Models Evaluated | 4 (LightGBM, LR, DNN-4L, DNN-Wide) |
+| AUROC — LightGBM | **0.7850** |
+| AUROC — Logistic Regression | 0.7299 |
+| AUROC — DNN (4 Layers) | 0.7096 |
+| AUROC — DNN (Wide) | 0.7369 |
+| F1 — LightGBM | **0.6448** |
+| F1 — Logistic Regression | 0.6138 |
 | 5-Fold CV AUROC (LightGBM) | 0.7949 ± 0.0164 |
+| 5-Fold CV AUROC (LR) | 0.720 ± 0.032 |
 | Latency Overhead | < 5 ms |
 | External Dependencies | Zero |
 | DL Comparison Notebook | `CLINIGUARD_DL_Comparison.ipynb` |

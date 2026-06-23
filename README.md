@@ -4,11 +4,12 @@
 
 ## 📊 Model Comparison Results
 
-Three models were trained on the 4 CLINIGUARD signals (Med-ISP, C-AAS, Med-EEM, CDT) and compared:
+All 4 models were trained on the same 4 CLINIGUARD signals (Med-ISP, C-AAS, Med-EEM, CDT) and evaluated on an identical 70/30 stratified split:
 
 | Model | AUROC | Avg Precision | F1-Score | Prec@95%Recall |
 |-------|-------|---------------|----------|----------------|
 | **LightGBM** ✅ | **0.7850** | **0.7829** | **0.6448** | **0.4072** |
+| Logistic Regression | 0.7299 | 0.7354 | 0.6138 | 0.3860 |
 | Deep Neural Network (4 Layers) | 0.7096 | 0.7260 | 0.5714 | 0.3873 |
 | Wide Neural Network (2 Layers) | 0.7369 | 0.7528 | 0.6276 | 0.3873 |
 

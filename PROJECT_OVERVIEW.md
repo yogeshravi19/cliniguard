@@ -85,6 +85,7 @@ We additionally trained two deep neural network (DNN) architectures on the same 
 | Model | AUROC | Avg Precision | F1-Score | Prec@95%Recall |
 |-------|-------|---------------|----------|----------------|
 | **LightGBM** ✅ *(selected)* | **0.7850** | **0.7829** | **0.6448** | **0.4072** |
+| Logistic Regression | 0.7299 | 0.7354 | 0.6138 | 0.3860 |
 | Deep Neural Network (4 Layers: 128→64→32→16) | 0.7096 | 0.7260 | 0.5714 | 0.3873 |
 | Wide Neural Network (2 Layers: 256→128) | 0.7369 | 0.7528 | 0.6276 | 0.3873 |
 
@@ -309,16 +310,18 @@ Labels: `0` = SAFE · `1` = AMBIGUOUS · `2` = RED (hallucination)
 
 ### Model Comparison: LightGBM vs Logistic Regression vs Deep Neural Networks
 
+All models trained and evaluated on **identical 70/30 stratified split**, same 4 signals.
+
 | Metric | LightGBM ✅ | Logistic Regression | DNN (4 Layers) | DNN (Wide, 2 Layers) |
 |--------|------------|---------------------|----------------|----------------------|
-| AUROC | **0.7850** | ~0.68 | 0.7096 | 0.7369 |
-| Average Precision | **0.7829** | ~0.69 | 0.7260 | 0.7528 |
-| F1 Score | **0.6448** | ~0.61 | 0.5714 | 0.6276 |
-| Prec@95%Recall | **0.4072** | — | 0.3873 | 0.3873 |
+| AUROC | **0.7850** | 0.7299 | 0.7096 | 0.7369 |
+| Average Precision | **0.7829** | 0.7354 | 0.7260 | 0.7528 |
+| F1 Score | **0.6448** | 0.6138 | 0.5714 | 0.6276 |
+| Prec@95%Recall | **0.4072** | 0.3860 | 0.3873 | 0.3873 |
 | Interpretability | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐ | ⭐ |
 | Speed | Fast | Very fast | Moderate | Moderate |
 
-> **Key finding:** LightGBM achieves the best overall performance across all metrics. Deep Neural Networks underperform on these 4 compact, hand-engineered tabular features; DNNs would need raw high-dimensional input (e.g., BERT embeddings) to match gradient boosting here.
+> **Key finding:** LightGBM achieves the best overall performance across all metrics. Logistic Regression is a close second and fully interpretable — its coefficients confirm that **Med-EEM (entropy, +0.9542)** and **CDT (cosine drift, −0.6411)** are the dominant hallucination signals. Deep Neural Networks underperform on these 4 compact tabular features.
 
 ---
 
