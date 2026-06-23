@@ -1,0 +1,4 @@
+Model,AUROC,Avg Precision,F1-Score,Prec@95%Recall
+LightGBM (Gradient Boosting),0.7850,0.7829,0.6448,0.4072
+Deep Neural Network (4 Layers),0.7096,0.7260,0.5714,0.3873
+Wide Neural Network (2 Layers),0.7369,0.7528,0.6276,0.3873

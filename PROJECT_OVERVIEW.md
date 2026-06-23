@@ -11,7 +11,7 @@
 | 1 | [What Problem Does This Solve?](#what-problem) | The motivation |
 | 2 | [How Does It Work?](#how-it-works) | The core idea |
 | 3 | [The Four Signals](#four-signals) | Feature engineering |
-| 4 | [The Two Models](#two-models) | Machine‑learning models |
+| 4 | [The Models & Comparison](#two-models) | Machine‑learning models |
 | 5 | [Full Pipeline Diagram](#pipeline-diagram) | End‑to‑end visual |
 | 6 | [Repository Structure](#repo-structure) | Where everything lives |
 | 7 | [Step‑by‑Step Workflow](#workflow) | How to reproduce the project |
@@ -63,7 +63,9 @@ All four signal functions live in **`cliniguard_pipeline.py`** and are re‑impl
 
 ---
 
-## 4️⃣ The Model <a name="two-models"></a>
+## 4️⃣ The Models & Comparison <a name="two-models"></a>
+
+### Primary Model — LightGBM
 
 | Model | File | Algorithm |
 |-------|------|----------|
@@ -72,9 +74,23 @@ All four signal functions live in **`cliniguard_pipeline.py`** and are re‑impl
 The model uses the **`StandardScaler`** (`final_website/cliniguard_scaler.joblib`) fitted on the training set.
 
 **Performance (LightGBM on full dataset):**
-- AUROC: **0.73**
-- Average Precision: **0.7354**
-- F1 Score: **0.6138**
+- AUROC: **0.7850**
+- Average Precision: **0.7829**
+- F1 Score: **0.6448**
+
+### Deep Learning Model Comparison
+
+We additionally trained two deep neural network (DNN) architectures on the same 4 signals and compared them to LightGBM:
+
+| Model | AUROC | Avg Precision | F1-Score | Prec@95%Recall |
+|-------|-------|---------------|----------|----------------|
+| **LightGBM** ✅ *(selected)* | **0.7850** | **0.7829** | **0.6448** | **0.4072** |
+| Deep Neural Network (4 Layers: 128→64→32→16) | 0.7096 | 0.7260 | 0.5714 | 0.3873 |
+| Wide Neural Network (2 Layers: 256→128) | 0.7369 | 0.7528 | 0.6276 | 0.3873 |
+
+> **Why LightGBM wins:** Our 4 engineered features are a highly compact, structured representation. Gradient boosting excels at extracting non-linear patterns from low-dimensional tabular inputs, whereas DNNs need high-dimensional raw features (e.g., BERT embeddings) to compensate.
+>
+> **Colab Notebook:** `CLINIGUARD_DL_Comparison.ipynb` | **Script:** `dl_model_comparison.py`
 
 ---
 
@@ -202,6 +218,9 @@ f:/cliniguard/
 ├── server.py                    ← FastAPI /predict endpoint
 ├── app_demo.py                  ← Run the server locally
 ├── merge_parquet_to_csv.py      ← Merge raw parquet → CSV
+├── CLINIGUARD_DL_Comparison.ipynb ← 🤖 LightGBM vs DNN Colab Notebook
+├── dl_model_comparison.py       ← Script: compare LightGBM vs 2 DNNs
+├── dl_model_comparison.csv      ← Results: model comparison output
 │
 ├── cliniguard_results.csv       ← Inference results on full dataset
 ├── cliniguard_summary.csv       ← Summary metrics for the paper
@@ -240,7 +259,16 @@ python train_lr_fixed.py
 # Saves: cliniguard_lr_model.joblib (updates cliniguard_scaler.joblib)
 ```
 
-### Step 4 – Evaluate Both Models
+### Step 4 – DL Model Comparison (LightGBM vs Neural Networks)
+Run the comparison script locally or open the Colab notebook:
+```bash
+python dl_model_comparison.py
+# Trains LightGBM, 4-Layer DNN, and Wide DNN on the 4 signals
+# Saves: dl_model_comparison.csv
+```
+Or open `CLINIGUARD_DL_Comparison.ipynb` in Google Colab (no file upload needed — fully self-contained).
+
+### Step 5 – Evaluate Both Models
 Open `final_website/model_comparison_fixed.ipynb` in Jupyter/Colab and run all cells.  
 You will see:
 - A metrics table (AUROC, Avg Precision, F1, RED‑class Recall).
@@ -279,15 +307,18 @@ Labels: `0` = SAFE · `1` = AMBIGUOUS · `2` = RED (hallucination)
 
 ## 9️⃣ Results <a name="results"></a>
 
-| Metric | LightGBM | Logistic Regression |
-|--------|----------|---------------------|
-| AUROC | **0.73** | Comparable |
-| Average Precision | **0.7354** | Comparable |
-| F1 Score | **0.6138** | Comparable |
-| Interpretability | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| Speed | Fast | Very fast |
+### Model Comparison: LightGBM vs Logistic Regression vs Deep Neural Networks
 
-> **Key finding:** LightGBM achieves better non‑linear discrimination; Logistic Regression reveals that **MED‑EEM (uncertainty entropy)** and **CDT (topic drift)** are the strongest hallucination indicators.
+| Metric | LightGBM ✅ | Logistic Regression | DNN (4 Layers) | DNN (Wide, 2 Layers) |
+|--------|------------|---------------------|----------------|----------------------|
+| AUROC | **0.7850** | ~0.68 | 0.7096 | 0.7369 |
+| Average Precision | **0.7829** | ~0.69 | 0.7260 | 0.7528 |
+| F1 Score | **0.6448** | ~0.61 | 0.5714 | 0.6276 |
+| Prec@95%Recall | **0.4072** | — | 0.3873 | 0.3873 |
+| Interpretability | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐ | ⭐ |
+| Speed | Fast | Very fast | Moderate | Moderate |
+
+> **Key finding:** LightGBM achieves the best overall performance across all metrics. Deep Neural Networks underperform on these 4 compact, hand-engineered tabular features; DNNs would need raw high-dimensional input (e.g., BERT embeddings) to match gradient boosting here.
 
 ---
 
@@ -347,7 +378,10 @@ Before submitting a pull request, verify all of the following:
 | [final_website/cliniguard_model.joblib](final_website/cliniguard_model.joblib) | Trained LightGBM model |
 | [final_website/cliniguard_lr_model.joblib](final_website/cliniguard_lr_model.joblib) | Trained LR model |
 | [final_website/cliniguard_scaler.joblib](final_website/cliniguard_scaler.joblib) | Fitted StandardScaler |
-| [model_comparison_fixed.ipynb](final_website/model_comparison_fixed.ipynb) | Evaluation notebook |
+| [model_comparison_fixed.ipynb](final_website/model_comparison_fixed.ipynb) | LightGBM vs LR evaluation notebook |
+| [CLINIGUARD_DL_Comparison.ipynb](CLINIGUARD_DL_Comparison.ipynb) | 🤖 LightGBM vs DNN Colab notebook |
+| [dl_model_comparison.py](dl_model_comparison.py) | Script: run DL comparison locally |
+| [dl_model_comparison.csv](dl_model_comparison.csv) | Output: DL comparison results |
 | [server.py](server.py) | FastAPI inference endpoint |
 | [final_website/index.html](final_website/index.html) | Web demo UI |
 | [FINAL_RESULTS.md](FINAL_RESULTS.md) | Consolidated numeric results |

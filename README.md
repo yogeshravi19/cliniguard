@@ -2,6 +2,21 @@
 
 > A safety guardrail for LLM‑generated medical answers that detects hallucinations and unsafe content using four hand‑crafted linguistic signals fused by a LightGBM model.
 
+## 📊 Model Comparison Results
+
+Three models were trained on the 4 CLINIGUARD signals (Med-ISP, C-AAS, Med-EEM, CDT) and compared:
+
+| Model | AUROC | Avg Precision | F1-Score | Prec@95%Recall |
+|-------|-------|---------------|----------|----------------|
+| **LightGBM** ✅ | **0.7850** | **0.7829** | **0.6448** | **0.4072** |
+| Deep Neural Network (4 Layers) | 0.7096 | 0.7260 | 0.5714 | 0.3873 |
+| Wide Neural Network (2 Layers) | 0.7369 | 0.7528 | 0.6276 | 0.3873 |
+
+> **Conclusion:** LightGBM consistently outperforms deep neural networks on these structured tabular features. DNNs require much larger, raw feature spaces (e.g., text embeddings) to outperform gradient boosting on 4-dimensional inputs.
+> The full comparison Colab notebook: `CLINIGUARD_DL_Comparison.ipynb`
+
+---
+
 ## 🛠️ Methodology
 
 The **Cliniguard** project follows a systematic, reproducible methodology that spans data collection, signal engineering, model training, evaluation, and deployment. Below is a step‑by‑step overview of the process we adopt:
@@ -21,10 +36,12 @@ The **Cliniguard** project follows a systematic, reproducible methodology that s
 3. **Feature Generation**
    - Combine the four signal scores with basic meta‑features (e.g., answer length, question complexity) to form a feature vector for each instance.
 
-4. **Model Training**
-   - Train a **LightGBM** gradient‑boosted tree classifier on the feature vectors.
-   - Use stratified 5‑fold cross‑validation to ensure robustness across the three safety classes.
-   - Optimize hyper‑parameters (learning rate, max depth, number of leaves) via Bayesian search.
+4. **Model Training & Comparison**
+   - Train a **LightGBM** gradient-boosted tree classifier on the feature vectors (primary model).
+   - Compare against **Deep Neural Networks** (4-layer DNN and 2-layer wide DNN architectures).
+   - Use stratified 5-fold cross-validation to ensure robustness across the three safety classes.
+   - Optimize hyper-parameters (learning rate, max depth, number of leaves) via Bayesian search.
+   - LightGBM selected as the final model based on superior AUROC (0.785) and F1-Score (0.645).
 
 5. **Evaluation**
    - Report standard classification metrics (accuracy, precision, recall, F1) for each class.
@@ -172,6 +189,9 @@ cliniguard/
 ├── cliniguard_pipeline.py       ← Core: 4 signal functions
 ├── server.py                    ← FastAPI /predict endpoint
 ├── app_demo.py                  ← ▶️  Run this to start the server
+├── CLINIGUARD_DL_Comparison.ipynb ← 🤖 LightGBM vs DNN Colab Notebook
+├── dl_model_comparison.py       ← Script: compare LightGBM vs 2 DNNs
+├── dl_model_comparison.csv      ← Results: model comparison output
 └── PROJECT_OVERVIEW.md          ← Full project documentation
 ```
 
@@ -182,10 +202,14 @@ cliniguard/
 See **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)** for the complete:
 - End‑to‑end pipeline explanation
 - Four signal descriptions
-- Model performance metrics
+- Model performance metrics (LightGBM, LR, and DNN comparison)
 - Step‑by‑step workflow to reproduce from scratch
 - Contributor checklist
 - Publication guide
+
+See **[CLINIGUARD_DL_Comparison.ipynb](CLINIGUARD_DL_Comparison.ipynb)** for the complete:
+- Colab-ready DL model comparison notebook
+- Side-by-side evaluation: LightGBM vs 4-Layer DNN vs Wide DNN
 
 ---
 Step 1: Install the required packages

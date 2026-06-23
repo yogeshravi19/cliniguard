@@ -7,7 +7,7 @@
 > **Project Name:** CLINIGUARD — Multi-Signal Clinical Hallucination Guard  
 > **Version:** 1.0 Final  
 > **Authors:** Cliniguard Development Team  
-> **Technology Stack:** Python 3.13 · LightGBM · FastAPI · Streamlit · HTML/CSS/JS  
+> **Technology Stack:** Python 3.13 · LightGBM · Deep Neural Networks · FastAPI · Streamlit · HTML/CSS/JS  
 
 ---
 
@@ -484,12 +484,33 @@ quadrantChart
 
 | Algorithm | AUROC | Training Latency | Inference Latency | Deterministic | Selected Status |
 |---|---|---|---|---|---|
-| **LightGBM** | **0.73** | ~5 sec | <1 ms | Yes | Primary |
+| **LightGBM** | **0.7850** | ~5 sec | <1 ms | Yes | **Primary ✅** |
 | Logistic Regression | 0.68 | <1 sec | <0.5 ms | Yes | Secondary |
 | Random Forest | 0.71 | ~8 sec | ~2 ms | Partial | Discarded |
 | Support Vector Machine | 0.67 | ~12 sec | ~3 ms | No | Discarded |
 | Naive Bayes | 0.59 | <1 sec | <0.5 ms | Partial | Discarded |
+| **Deep Neural Network (4L)** | 0.7096 | ~30 sec | ~5 ms | No | Evaluated |
+| **Wide Neural Network (2L)** | 0.7369 | ~25 sec | ~4 ms | No | Evaluated |
 | Neural Network (BERT) | 0.88 | >7000 sec | >500 ms | No | Discarded |
+
+### 8.3 Deep Learning Model Comparison
+
+As part of the final evaluation, two Multilayer Perceptron (MLP) architectures were trained on the same 4 signal features and compared against LightGBM:
+
+| Model | Architecture | AUROC | Avg Precision | F1-Score | Prec@95%Recall |
+|-------|-------------|-------|---------------|----------|----------------|
+| **LightGBM** ✅ | Gradient Boosted Trees | **0.7850** | **0.7829** | **0.6448** | **0.4072** |
+| Deep Neural Network | 128 → 64 → 32 → 16 (ReLU) | 0.7096 | 0.7260 | 0.5714 | 0.3873 |
+| Wide Neural Network | 256 → 128 (ReLU) | 0.7369 | 0.7528 | 0.6276 | 0.3873 |
+
+**Colab Notebook:** `CLINIGUARD_DL_Comparison.ipynb` — fully self-contained, runs all 3 models end-to-end.  
+**Script:** `dl_model_comparison.py` — local reproduction.
+
+**Why DNNs underperform on this dataset:**
+The 4 CLINIGUARD signals (Med-ISP, C-AAS, Med-EEM, CDT) form a **compact 4-dimensional tabular input**. Deep neural networks are designed to discover latent representations from high-dimensional raw inputs (images, text token sequences, etc.). With only 4 structured features, gradient boosting consistently dominates by:
+- Detecting complex non-linear feature interactions via tree splits.
+- Being robust to the small dataset size (2,161 samples).
+- Avoiding overfitting without requiring dropout or other regularization.
 
 ### 8.3 Primary Selection Rationale
 
@@ -791,12 +812,13 @@ xychart-beta
 
 ### 14.1 Aggregate System Efficacy
 
-| Performance Indicator | Recorded Value |
-|---|---|
-| Aggregate AUROC | 0.7299 |
-| Aggregate Precision | 0.7354 |
-| Aggregate F1-Score | 0.6138 |
-| Cross-Validation AUROC | 0.720 ± 0.032 |
+| Performance Indicator | LightGBM | DNN (4 Layers) | DNN (Wide) |
+|---|---|---|---|
+| Aggregate AUROC | **0.7850** | 0.7096 | 0.7369 |
+| Aggregate Precision | **0.7829** | 0.7260 | 0.7528 |
+| Aggregate F1-Score | **0.6448** | 0.5714 | 0.6276 |
+| Prec@95%Recall | **0.4072** | 0.3873 | 0.3873 |
+| Cross-Validation AUROC | **0.7949 ± 0.0164** | N/A | N/A |
 
 ### 14.2 Empirical Findings Analysis
 
@@ -817,6 +839,7 @@ xychart-beta
 | Iteration v0.3 | 0.71 | Expansion of training corpus |
 | Iteration v0.4 | 0.71 | Resolution of scale leakage faults |
 | Final Architecture v1.0 | 0.73 | Implementation of gradient boosting |
+| **DL Evaluation v1.1** | **0.7850** | Full DNN comparison; LightGBM confirmed as optimal fusion model |
 
 ---
 
@@ -899,9 +922,14 @@ The system verifies that highly efficient, CPU-bound classification models can a
 | Total Training Data Points | 2,161 |
 | Feature Vector Dimensions | 4 |
 | Primary Classification Engine | LightGBM |
-| Validated AUROC | 0.7299 |
+| Models Evaluated | 3 (LightGBM, DNN-4L, DNN-Wide) |
+| Validated AUROC (LightGBM) | **0.7850** |
+| Validated AUROC (DNN-4L) | 0.7096 |
+| Validated AUROC (DNN-Wide) | 0.7369 |
+| 5-Fold CV AUROC (LightGBM) | 0.7949 ± 0.0164 |
 | Latency Overhead | < 5 ms |
 | External Dependencies | Zero |
+| DL Comparison Notebook | `CLINIGUARD_DL_Comparison.ipynb` |
 
 ### 18.3 Architectural Validation
 
@@ -923,11 +951,13 @@ By anchoring the detection methodology in fundamental mathematical principles (S
 | Component Category | Employed Technology | Specified Version |
 |---|---|---|
 | Core Runtime Engine | Python | 3.13 |
-| Machine Learning Engine | LightGBM | Current Release |
+| Primary ML Engine | LightGBM | Current Release |
+| Deep Learning Engine | scikit-learn MLPClassifier | Current Release |
 | Mathematical Utilities | scikit-learn | Current Release |
 | Data Processing | pandas, numpy | Current Release |
 | API Layer | FastAPI + Uvicorn | Current Release |
 | Web Execution Environment | Streamlit | Current Release |
 | Serialization Engine | joblib | Current Release |
+| DL Comparison Notebook | CLINIGUARD_DL_Comparison.ipynb | Google Colab |
 
 ---
