@@ -212,16 +212,3 @@ See **[CLINIGUARD_DL_Comparison.ipynb](CLINIGUARD_DL_Comparison.ipynb)** for the
 - Colab-ready DL model comparison notebook
 - Side-by-side evaluation: LightGBM vs 4-Layer DNN vs Wide DNN
 
----
-Step 1: Install the required packages
-Open a terminal in the cloned cliniguard folder and run:
-
-bash
-pip install fastapi uvicorn joblib scikit-learn lightgbm numpy pandas
-(You only have to do this once on the new laptop).
-
-Step 2: Start the Server
-python -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
-In the same terminal, run:
-
-

@@ -1,0 +1,7 @@
+source,n,n_hallucinated,pct_hallucinated,n_unique_questions,label_provenance,n_unique_hallucinated_answers,top_hallucinated_answer_share_pct,mean_answer_tokens_label0,mean_answer_tokens_label1
+github,107,24,22.4,75,SYNTHETIC (rows from every 3rd XML file replaced by fixed hedging sentence),1,100.0,286.0,14.0
+medhallbench,54,27,50.0,27,SYNTHETIC (label=1 answer is a fixed Chinese hedging sentence),1,100.0,103.3,35.0
+medhallu,500,250,50.0,250,real  (MedHallu ground-truth answer=0 / hallucinated answer=1),250,0.4,41.5,27.7
+medhalt,500,194,38.8,488,real  (Med-HALT 'pubmed_data_type': real_data=0 / fake_data=1),182,6.7,201.7,126.7
+medquad,500,167,33.4,500,"SYNTHETIC (label = row_index % 3 == 0, answer text unchanged)",156,6.0,132.8,135.3
+pubmedqa,500,167,33.4,500,"SYNTHETIC (every 3rd row answer replaced by a fixed hedging sentence, label=1)",1,100.0,42.0,14.0

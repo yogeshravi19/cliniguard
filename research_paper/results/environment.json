@@ -1,0 +1,24 @@
+{
+  "python": "3.8.10",
+  "platform": "win32",
+  "n_samples": 6914,
+  "n_hallucinated": 2989,
+  "sources": [
+    "Med-HALT",
+    "MedHallu"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "headline_seed": 42,
+  "runtime_seconds": 398.3
+}

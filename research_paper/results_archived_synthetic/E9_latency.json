@@ -1,0 +1,21 @@
+{
+  "feature_extraction_only": {
+    "median_ms": 0.9781999999916025,
+    "p95_ms": 3.0962399999935997,
+    "mean_ms": 1.1792126500001106,
+    "n": 2000
+  },
+  "features+scaler+LightGBM": {
+    "median_ms": 2.8727499999945394,
+    "p95_ms": 6.054970000003834,
+    "mean_ms": 3.3580861500001045,
+    "n": 2000
+  },
+  "features+scaler+LogisticRegression": {
+    "median_ms": 1.2853999999862253,
+    "p95_ms": 3.141145000000733,
+    "mean_ms": 1.5852652499998214,
+    "n": 2000
+  },
+  "query_tokens_answer": 33
+}

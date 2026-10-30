@@ -187,6 +187,28 @@ class CliniguardRequestHandler(BaseHTTPRequestHandler):
                 # Build explanation tokens
                 tokens = analyze_tokens(answer)
                 
+                if hasattr(clf, "coef_"):
+                    model_weights = {
+                        "med_isp": float(clf.coef_[0][0]),
+                        "c_aas": float(clf.coef_[0][1]),
+                        "med_eem": float(clf.coef_[0][2]),
+                        "cdt": float(clf.coef_[0][3]),
+                        "intercept": float(clf.intercept_[0])
+                    }
+                elif hasattr(clf, "feature_importances_"):
+                    importances = clf.feature_importances_
+                    model_weights = {
+                        "med_isp": float(importances[0]),
+                        "c_aas": float(importances[1]),
+                        "med_eem": float(importances[2]),
+                        "cdt": float(importances[3]),
+                        "intercept": 0.0
+                    }
+                else:
+                    model_weights = {
+                        "med_isp": 0.25, "c_aas": 0.25, "med_eem": 0.25, "cdt": 0.25, "intercept": 0.0
+                    }
+
                 response = {
                     "risk_score": risk_score,
                     "label": label,
@@ -204,13 +226,7 @@ class CliniguardRequestHandler(BaseHTTPRequestHandler):
                         "cdt": weights[3]
                     },
                     "tokens": tokens,
-                    "coefficients": {
-                        "med_isp": float(clf.coef_[0][0]),
-                        "c_aas": float(clf.coef_[0][1]),
-                        "med_eem": float(clf.coef_[0][2]),
-                        "cdt": float(clf.coef_[0][3]),
-                        "intercept": float(clf.intercept_[0])
-                    }
+                    "coefficients": model_weights
                 }
                 
                 self.send_response(200)

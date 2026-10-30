@@ -1,0 +1,3 @@
+source,n_samples,n_hallucinated,pct_hallucinated,n_unique_questions,mean_tokens_label0,mean_tokens_label1,label_provenance
+Med-HALT,4914,1989,40.48,4817,208.0,127.3,Genuine (authentic PubMed vs fake abstract)
+MedHallu,2000,1000,50.0,1000,39.7,27.8,Genuine (expert-paired Ground Truth vs LLM Hallucinated answer)

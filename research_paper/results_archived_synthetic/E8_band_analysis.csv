@@ -1,0 +1,7 @@
+model,band,n,share_pct,hallucination_rate_pct
+LightGBM,GREEN,319,49.2,20.7
+LightGBM,AMBER,166,25.6,28.9
+LightGBM,RED,164,25.3,82.3
+LogisticRegression,GREEN,222,34.2,26.1
+LogisticRegression,AMBER,291,44.8,25.8
+LogisticRegression,RED,136,21.0,85.3

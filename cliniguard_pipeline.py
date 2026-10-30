@@ -49,18 +49,8 @@ except Exception:
     pass
 
 # ─────────────────────────────────────────────────────────────────────────────
-# CLI
+# CLI parser will be initialized in main()
 # ─────────────────────────────────────────────────────────────────────────────
-parser = argparse.ArgumentParser(description="CLINIGUARD Final Capstone Pipeline")
-parser.add_argument(
-    "--source", type=str,
-    choices=["medhalt","pubmedqa","medquad","medhallu","medhallbench","github","auto"],
-    default="auto",
-    help="'auto' = unified model across all datasets (default)"
-)
-parser.add_argument("--samples", type=int, default=500,
-                    help="Rows per dataset (default 500)")
-args, _ = parser.parse_known_args()
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DISPLAY UTILITIES
@@ -428,188 +418,212 @@ def cross_validate(df_all: pd.DataFrame):
     return aucs
 
 # ─────────────────────────────────────────────────────────────────────────────
-# FULL AUTO MODE — UNIFIED CLINIGUARD MODEL
+# MAIN ENTRYPOINT
 # ─────────────────────────────────────────────────────────────────────────────
-if args.source == "auto":
-    banner("CLINIGUARD — UNIFIED CAPSTONE BENCHMARK")
-
-    # ── 1. Load all datasets ────────────────────────────────────────────────
-    sub_banner("Step 1 of 5 — Loading All Datasets from Local Parquet Cache")
-    sources = list(PARQUET_REGISTRY.keys())
-    frames = []
-    for src in sources:
-        try:
-            df_src = load_source(src, n=args.samples)
-            frames.append(df_src)
-            pos = df_src["_label"].sum()
-            print(f"  [OK] {src:<14} {len(df_src):>5} rows  |  hallucinated: {pos}")
-        except Exception as e:
-            print(f"  [SKIP] {src}: {e}")
-
-    df_all = pd.concat(frames, ignore_index=True)
-    print(f"\n  TOTAL: {len(df_all)} rows across {len(frames)} datasets")
-    print(f"  Hallucinated (label=1): {df_all['_label'].sum()} "
-          f"({df_all['_label'].mean()*100:.1f}%)")
-
-    # ── 2. Extract signals ───────────────────────────────────────────────────
-    sub_banner("Step 2 of 5 — Extracting 4 Detection Signals")
-    print("  Computing Med-ISP, C-AAS, Med-EEM (Shannon entropy), CDT (cosine)...")
-    df_all = extract_features(df_all)
-    print(f"\n  Signal Means (all data):")
-    for f in FEATURES:
-        print(f"    {f:<12} mean={df_all[f].mean():.4f}  std={df_all[f].std():.4f}")
-    tc = df_all["task"].value_counts()
-    print(f"\n  Task distribution: {dict(tc)}")
-
-    # ── 3. Train unified model ───────────────────────────────────────────────
-    sub_banner("Step 3 of 5 — Training ONE Unified CLINIGUARD Model (70/30 split)")
-    clf, scaler, X_test, y_test, idx_test = train_unified_model(df_all)
-
-    y_prob = clf.predict_proba(X_test)[:, 1]
-    y_pred = clf.predict(X_test)
-
-    overall_auroc = roc_auc_score(y_test, y_prob)
-    overall_ap    = average_precision_score(y_test, y_prob)
-    overall_f1    = f1_score(y_test, y_pred, zero_division=0)
-    prec, rec, _  = precision_recall_curve(y_test, y_prob)
-    p95r          = prec[np.argmin(np.abs(rec - 0.95))]
-
-    # Print model-specific feature contributions
-    if LGBM_AVAILABLE and isinstance(clf, lgb.LGBMClassifier):
-        print(f"\n  Learned Signal Importance (LightGBM Feature Gain):")
-        importances = clf.feature_importances_
-        for feat, imp in zip(FEATURES, importances):
-            bar = "#" * int(imp / max(importances) * 20 + 1)
-            print(f"    {feat:<12}  importance = {imp:>8.1f}  {bar}")
-    else:
-        print(f"\n  Learned Signal Weights (Logistic Regression Coefficients):")
-        for feat, w in zip(FEATURES, clf.coef_[0]):
-            bar = "#" * int(abs(w * 5) + 1)
-            print(f"    {feat:<12}  coef = {w:>+8.4f}  {bar}")
-
-    print(f"\n  ┌─────────────────────────────────────────────┐")
-    print(f"  │  OVERALL UNIFIED MODEL PERFORMANCE          │")
-    print(f"  │  AUROC            : {overall_auroc:.4f}                 │")
-    print(f"  │  Avg Precision    : {overall_ap:.4f}                 │")
-    print(f"  │  F1-Score         : {overall_f1:.4f}                 │")
-    print(f"  │  Precision@95%Rec : {p95r:.4f}                 │")
-    print(f"  └─────────────────────────────────────────────┘")
-
-    # ── 4. Per-dataset evaluation (SAME model, no retraining) ────────────────
-    sub_banner("Step 4 of 5 — Per-Dataset Evaluation (Same Unified Model)")
-    comparison = []
-    for src in sources:
-        df_src = df_all[df_all["_source"] == src]
-        if len(df_src) == 0:
-            continue
-        m = evaluate_model(clf, scaler, df_src, label=src)
-
-        # Apply task-conditional risk scores
-        df_src = df_src.copy()
-        if m.get("y_prob") is not None:
-            df_src["risk_score"] = clf.predict_proba(
-                scaler.transform(df_src[FEATURES].values)
-            )[:, 1]
-            df_src["cliniguard_label"] = df_src["risk_score"].apply(risk_label)
-            color_dist = df_src["cliniguard_label"].value_counts().to_dict()
-        else:
-            color_dist = {}
-
-        auroc_str = f"{m['auroc']:.4f}" if m["auroc"] else "N/A"
-        ap_str    = f"{m['ap']:.4f}"    if m["ap"]    else "N/A"
-        f1_str    = f"{m['f1']:.4f}"    if m["f1"]    else "N/A"
-        p95_str   = f"{m['p95r']:.4f}"  if m["p95r"]  else "N/A"
-
-        g = color_dist.get("GREEN", 0)
-        a_col = color_dist.get("AMBER", 0)
-        r = color_dist.get("RED", 0)
-
-        comparison.append({
-            "Dataset":         src.upper(),
-            "Rows":            len(df_src),
-            "Hallucinated":    int(df_src["_label"].sum()),
-            "AUROC":           auroc_str,
-            "Avg Precision":   ap_str,
-            "F1-Score":        f1_str,
-            "Prec@95%Recall":  p95_str,
-            "GREEN":           g,
-            "AMBER":           a_col,
-            "RED":             r,
-        })
-
-    df_comp = pd.DataFrame(comparison)
-    banner("FINAL COMPARATIVE TABLE — Unified CLINIGUARD Model", char="=")
-    print(df_comp.to_string(index=False))
-
-    # ── 5. Ablation + Cross-Validation ──────────────────────────────────────
-    sub_banner("Step 5 of 5 — Ablation Study + Cross-Validation")
-    ablation_study(df_all)
-    cross_validate(df_all)
-
-    # ── Save results ─────────────────────────────────────────────────────────
-    out_csv = Path(__file__).parent / "cliniguard_results.csv"
-    df_all["risk_score"] = clf.predict_proba(
-        scaler.transform(df_all[FEATURES].values)
-    )[:, 1]
-    df_all["cliniguard_label"] = df_all["risk_score"].apply(risk_label)
-    df_all.to_csv(out_csv, index=False)
-
-    df_comp.to_csv(Path(__file__).parent / "cliniguard_summary.csv", index=False)
-
-    # ── Save model for live inference ────────────────────────────────────────
-    import joblib
-    joblib.dump(clf, Path(__file__).parent / "cliniguard_model.joblib")
-    joblib.dump(scaler, Path(__file__).parent / "cliniguard_scaler.joblib")
-
-    banner("CLINIGUARD COMPLETE")
-    print(f"  Unified Model AUROC    : {overall_auroc:.4f}")
-    print(f"  Unified Model F1-Score : {overall_f1:.4f}")
-    print(f"  Unified Model saved to : cliniguard_model.joblib")
-    print(f"  Standard Scaler saved to: cliniguard_scaler.joblib")
-    print(f"  Full results saved to  : {out_csv}")
-    print(f"  Summary table saved to : cliniguard_summary.csv\n")
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SINGLE-SOURCE MODE
-# ─────────────────────────────────────────────────────────────────────────────
-else:
-    banner(f"CLINIGUARD — Single Source: {args.source.upper()}")
-    df = load_source(args.source, n=args.samples)
-    df = extract_features(df)
-
-    X = df[FEATURES].values
-    y = df["_label"].values
-    X_tr, X_te, y_tr, y_te = train_test_split(
-        X, y, test_size=0.3, random_state=42,
-        stratify=y if len(np.unique(y)) > 1 else None
+def main():
+    parser = argparse.ArgumentParser(description="CLINIGUARD Final Capstone Pipeline")
+    parser.add_argument(
+        "--source", type=str,
+        choices=["medhalt","pubmedqa","medquad","medhallu","medhallbench","github","auto"],
+        default="auto",
+        help="'auto' = unified model across all datasets (default)"
     )
-    sc = StandardScaler()
-    X_tr = sc.fit_transform(X_tr)
-    X_te = sc.transform(X_te)
+    parser.add_argument("--samples", type=int, default=500,
+                        help="Rows per dataset (default 500)")
+    args, _ = parser.parse_known_args()
 
-    clf_s = LogisticRegression(max_iter=2000, random_state=42,
-                               class_weight="balanced")
-    clf_s.fit(X_tr, y_tr)
+    # ─────────────────────────────────────────────────────────────────────────
+    # FULL AUTO MODE — UNIFIED CLINIGUARD MODEL
+    # ─────────────────────────────────────────────────────────────────────────
+    if args.source == "auto":
+        banner("CLINIGUARD — UNIFIED CAPSTONE BENCHMARK")
 
-    y_prob = clf_s.predict_proba(X_te)[:, 1]
-    y_pred = clf_s.predict(X_te)
+        # ── 1. Load all datasets ────────────────────────────────────────────
+        sub_banner("Step 1 of 5 — Loading All Datasets from Local Parquet Cache")
+        sources = list(PARQUET_REGISTRY.keys())
+        frames = []
+        for src in sources:
+            try:
+                df_src = load_source(src, n=args.samples)
+                frames.append(df_src)
+                pos = df_src["_label"].sum()
+                print(f"  [OK] {src:<14} {len(df_src):>5} rows  |  hallucinated: {pos}")
+            except Exception as e:
+                print(f"  [SKIP] {src}: {e}")
 
-    auroc = roc_auc_score(y_te, y_prob) if len(np.unique(y_te)) > 1 else 0.0
-    ap    = average_precision_score(y_te, y_prob) if len(np.unique(y_te)) > 1 else 0.0
-    f1    = f1_score(y_te, y_pred, zero_division=0)
+        df_all = pd.concat(frames, ignore_index=True)
+        print(f"\n  TOTAL: {len(df_all)} rows across {len(frames)} datasets")
+        print(f"  Hallucinated (label=1): {df_all['_label'].sum()} "
+              f"({df_all['_label'].mean()*100:.1f}%)")
 
-    print(f"  Rows loaded      : {len(df)}")
-    print(f"  Hallucinated     : {df['_label'].sum()}")
-    print(f"  AUROC            : {auroc:.4f}")
-    print(f"  Avg Precision    : {ap:.4f}")
-    print(f"  F1-Score         : {f1:.4f}")
-    print("\n  Classification Report:")
-    print(classification_report(y_te, y_pred,
-          target_names=["Factual (0)", "Hallucinated (1)"],
-          zero_division=0))
+        # ── 2. Extract signals ───────────────────────────────────────────────
+        sub_banner("Step 2 of 5 — Extracting 4 Detection Signals")
+        print("  Computing Med-ISP, C-AAS, Med-EEM (Shannon entropy), CDT (cosine)...")
+        df_all = extract_features(df_all)
+        print(f"\n  Signal Means (all data):")
+        for f in FEATURES:
+            print(f"    {f:<12} mean={df_all[f].mean():.4f}  std={df_all[f].std():.4f}")
+        tc = df_all["task"].value_counts()
+        print(f"\n  Task distribution: {dict(tc)}")
 
-    df["risk_score"] = clf_s.predict_proba(sc.transform(df[FEATURES].values))[:, 1]
-    df["cliniguard_label"] = df["risk_score"].apply(risk_label)
-    out = Path(__file__).parent / f"cliniguard_results_{args.source}.csv"
-    df.to_csv(out, index=False)
-    print(f"  Results saved to: {out}\n")
+        # ── 3. Train unified model ───────────────────────────────────────────
+        sub_banner("Step 3 of 5 — Training ONE Unified CLINIGUARD Model (70/30 split)")
+        clf, scaler, X_test, y_test, idx_test = train_unified_model(df_all)
+
+        y_prob = clf.predict_proba(X_test)[:, 1]
+        y_pred = clf.predict(X_test)
+
+        overall_auroc = roc_auc_score(y_test, y_prob)
+        overall_ap    = average_precision_score(y_test, y_prob)
+        overall_f1    = f1_score(y_test, y_pred, zero_division=0)
+        prec, rec, _  = precision_recall_curve(y_test, y_prob)
+        p95r          = prec[np.argmin(np.abs(rec - 0.95))]
+
+        # Print model-specific feature contributions
+        if LGBM_AVAILABLE and isinstance(clf, lgb.LGBMClassifier):
+            print(f"\n  Learned Signal Importance (LightGBM Feature Gain):")
+            importances = clf.feature_importances_
+            for feat, imp in zip(FEATURES, importances):
+                bar = "#" * int(imp / max(importances) * 20 + 1)
+                print(f"    {feat:<12}  importance = {imp:>8.1f}  {bar}")
+        else:
+            print(f"\n  Learned Signal Weights (Logistic Regression Coefficients):")
+            for feat, w in zip(FEATURES, clf.coef_[0]):
+                bar = "#" * int(abs(w * 5) + 1)
+                print(f"    {feat:<12}  coef = {w:>+8.4f}  {bar}")
+
+        print(f"\n  ┌─────────────────────────────────────────────┐")
+        print(f"  │  OVERALL UNIFIED MODEL PERFORMANCE          │")
+        print(f"  │  AUROC            : {overall_auroc:.4f}                 │")
+        print(f"  │  Avg Precision    : {overall_ap:.4f}                 │")
+        print(f"  │  F1-Score         : {overall_f1:.4f}                 │")
+        print(f"  │  Precision@95%Rec : {p95r:.4f}                 │")
+        print(f"  └─────────────────────────────────────────────┘")
+
+        # ── 4. Per-dataset evaluation (SAME model, no retraining) ────────────
+        sub_banner("Step 4 of 5 — Per-Dataset Evaluation (Same Unified Model)")
+        comparison = []
+        for src in sources:
+            df_src = df_all[df_all["_source"] == src]
+            if len(df_src) == 0:
+                continue
+            m = evaluate_model(clf, scaler, df_src, label=src)
+
+            # Apply task-conditional risk scores
+            df_src = df_src.copy()
+            if m.get("y_prob") is not None:
+                df_src["risk_score"] = clf.predict_proba(
+                    scaler.transform(df_src[FEATURES].values)
+                )[:, 1]
+                df_src["cliniguard_label"] = df_src["risk_score"].apply(risk_label)
+                color_dist = df_src["cliniguard_label"].value_counts().to_dict()
+            else:
+                color_dist = {}
+
+            auroc_str = f"{m['auroc']:.4f}" if m["auroc"] else "N/A"
+            ap_str    = f"{m['ap']:.4f}"    if m["ap"]    else "N/A"
+            f1_str    = f"{m['f1']:.4f}"    if m["f1"]    else "N/A"
+            p95_str   = f"{m['p95r']:.4f}"  if m["p95r"]  else "N/A"
+
+            g = color_dist.get("GREEN", 0)
+            a_col = color_dist.get("AMBER", 0)
+            r = color_dist.get("RED", 0)
+
+            comparison.append({
+                "Dataset":         src.upper(),
+                "Rows":            len(df_src),
+                "Hallucinated":    int(df_src["_label"].sum()),
+                "AUROC":           auroc_str,
+                "Avg Precision":   ap_str,
+                "F1-Score":        f1_str,
+                "Prec@95%Recall":  p95_str,
+                "GREEN":           g,
+                "AMBER":           a_col,
+                "RED":             r,
+            })
+
+        df_comp = pd.DataFrame(comparison)
+        banner("FINAL COMPARATIVE TABLE — Unified CLINIGUARD Model", char="=")
+        print(df_comp.to_string(index=False))
+
+        # ── 5. Ablation + Cross-Validation ──────────────────────────────────
+        sub_banner("Step 5 of 5 — Ablation Study + Cross-Validation")
+        ablation_study(df_all)
+        cross_validate(df_all)
+
+        # ── Save results ─────────────────────────────────────────────────────
+        out_csv = Path(__file__).parent / "cliniguard_results.csv"
+        df_all["risk_score"] = clf.predict_proba(
+            scaler.transform(df_all[FEATURES].values)
+        )[:, 1]
+        df_all["cliniguard_label"] = df_all["risk_score"].apply(risk_label)
+        df_all.to_csv(out_csv, index=False)
+
+        df_comp.to_csv(Path(__file__).parent / "cliniguard_summary.csv", index=False)
+
+        # ── Save model for live inference ────────────────────────────────────
+        import joblib
+        joblib.dump(clf, Path(__file__).parent / "cliniguard_model.joblib")
+        joblib.dump(scaler, Path(__file__).parent / "cliniguard_scaler.joblib")
+
+        # Synchronize model with final_website directory
+        final_web_dir = Path(__file__).parent / "final_website"
+        if final_web_dir.exists():
+            joblib.dump(clf, final_web_dir / "cliniguard_model.joblib")
+            joblib.dump(scaler, final_web_dir / "cliniguard_scaler.joblib")
+
+        banner("CLINIGUARD COMPLETE")
+        print(f"  Unified Model AUROC    : {overall_auroc:.4f}")
+        print(f"  Unified Model F1-Score : {overall_f1:.4f}")
+        print(f"  Unified Model saved to : cliniguard_model.joblib")
+        print(f"  Standard Scaler saved to: cliniguard_scaler.joblib")
+        print(f"  Full results saved to  : {out_csv}")
+        print(f"  Summary table saved to : cliniguard_summary.csv\n")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # SINGLE-SOURCE MODE
+    # ─────────────────────────────────────────────────────────────────────────
+    else:
+        banner(f"CLINIGUARD — Single Source: {args.source.upper()}")
+        df = load_source(args.source, n=args.samples)
+        df = extract_features(df)
+
+        X = df[FEATURES].values
+        y = df["_label"].values
+        X_tr, X_te, y_tr, y_te = train_test_split(
+            X, y, test_size=0.3, random_state=42,
+            stratify=y if len(np.unique(y)) > 1 else None
+        )
+        sc = StandardScaler()
+        X_tr = sc.fit_transform(X_tr)
+        X_te = sc.transform(X_te)
+
+        clf_s = LogisticRegression(max_iter=2000, random_state=42,
+                                   class_weight="balanced")
+        clf_s.fit(X_tr, y_tr)
+
+        y_prob = clf_s.predict_proba(X_te)[:, 1]
+        y_pred = clf_s.predict(X_te)
+
+        auroc = roc_auc_score(y_te, y_prob) if len(np.unique(y_te)) > 1 else 0.0
+        ap    = average_precision_score(y_te, y_prob) if len(np.unique(y_te)) > 1 else 0.0
+        f1    = f1_score(y_te, y_pred, zero_division=0)
+
+        print(f"  Rows loaded      : {len(df)}")
+        print(f"  Hallucinated     : {df['_label'].sum()}")
+        print(f"  AUROC            : {auroc:.4f}")
+        print(f"  Avg Precision    : {ap:.4f}")
+        print(f"  F1-Score         : {f1:.4f}")
+        print("\n  Classification Report:")
+        print(classification_report(y_te, y_pred,
+              target_names=["Factual (0)", "Hallucinated (1)"],
+              zero_division=0))
+
+        df["risk_score"] = clf_s.predict_proba(sc.transform(df[FEATURES].values))[:, 1]
+        df["cliniguard_label"] = df["risk_score"].apply(risk_label)
+        out = Path(__file__).parent / f"cliniguard_results_{args.source}.csv"
+        df.to_csv(out, index=False)
+        print(f"  Results saved to: {out}\n")
+
+if __name__ == "__main__":
+    main()

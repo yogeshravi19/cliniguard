@@ -1,0 +1,111 @@
+### 01_Singhal2023_MedPaLM.pdf  (pages=44, KB=1404)
+Large Language Models Encode Clinical Knowledge Karan Singhal∗,1, Shekoofeh Azizi∗,1, Tao Tu∗,1, S. Sara Mahdavi1, Jason Wei1, Hyung Won Chung1, Nathan Scales1, Ajay Tanwani1, Heather Cole-Lewis1, Stephen Pfohl1, Perry Payne1, Martin Seneviratne1, Paul Gamble1, Chris Kelly1, Nathaneal Schärli1, Aakanksha Chowdhery1, Philip Mansﬁeld1, Blaise Agüera y Arcas1, Dale Webster1, Greg S. Corrado1, Yossi Matias1, Katherine Ch
+
+### 02_Singhal2023_MedPaLM2.pdf  (pages=30, KB=811)
+Towards Expert-Level Medical Question Answering with Large Language Models Karan Singhal∗,1, Tao Tu∗,1, Juraj Gottweis∗,1, Rory Sayres∗,1, Ellery Wulczyn1, Le Hou1, Kevin Clark1, Stephen Pfohl1, Heather Cole-Lewis1, Darlene Neal1, Mike Schaekermann1, Amy Wang1, Mohamed Amin1, Sami Lachgar1, Philip Mansﬁeld1, Sushant Prakash1, Bradley Green1, Ewa Dominowska1, Blaise Aguera y Arcas1, Nenad Tomasev2, Yun Liu1, Renee Won
+
+### 03_Nori2023_GPT4_Medical.pdf  (pages=35, KB=571)
+Capabilities of GPT-4 on Medical Challenge Problems Harsha Nori1, Nicholas King1, Scott Mayer McKinney2, Dean Carignan1, and Eric Horvitz1 1Microsoft 2OpenAI Abstract Large language models (LLMs) have demonstrated remarkable capabilities in natural language understanding and generation across various domains, including medicine. We present a compre- hensive evaluation of GPT-4 [Ope23], a state-of-the-art LLM, on medi
+
+### 04_Lee2020_BioBERT.pdf  (pages=7, KB=1370)
+Data and text mining BioBERT: a pre-trained biomedical language representation model for biomedical text mining Jinhyuk Lee 1,†, Wonjin Yoon 1,†, Sungdong Kim 2, Donghyeon Kim 1, Sunkyu Kim 1, Chan Ho So 3 and Jaewoo Kang 1,3,* 1Department of Computer Science and Engineering, Korea University, Seoul 02841, Korea, 2Clova AI Research, Naver Corp, Seong- Nam 13561, Korea and 3Interdisciplinary Graduate Program in Bioinf
+
+### 05_Gu2021_PubMedBERT.pdf  (pages=24, KB=1084)
+1 Domain-Specific Language Model Pretraining for Biomedical Natural Language Processing YU GU∗, ROBERT TINN∗, HAO CHENG∗, MICHAEL LUCAS, NAOTO USUYAMA, XIAODONG LIU, TRISTAN NAUMANN, JIANFENG GAO, and HOIFUNG POON, Microsoft Research Pretraining large neural language models, such as BERT, has led to impressive gains on many natural language processing (NLP) tasks. However, most pretraining efforts focus on general do
+
+### 06_Luo2022_BioGPT.pdf  (pages=12, KB=896)
+BioGPT 1 BioGPT: Generative Pre-trained Transformer for Biomedical Text Generation and Mining Renqian Luo 1,∗, Liai Sun2, Yingce Xia 1,∗, Tao Qin 1,∗, Sheng Zhang 3, Hoifung Poon 3 and Tie-Yan Liu1 1Microsoft Research AI4Science, Beijing, China, 2Peking University, Beijing, China and 3Microsoft Research, Redmond, WA, USA ∗Corresponding authors: Renqian Luo, Microsoft Research AI4Science, E-mail: renqianluo@microsoft.
+
+### 07_Alsentzer2019_ClinicalBERT.pdf  (pages=7, KB=187)
+Proceedings of the 2nd Clinical Natural Language Processing Workshop, pages 72–78 Minneapolis, Minnesota, June 7, 2019. c⃝2019 Association for Computational Linguistics 72 Publicly Available Clinical BERT Embeddings Emily Alsentzer Harvard-MIT Cambridge, MA emilya@mit.edu John R. Murphy MIT CSAIL Cambridge, MA jrmurphy@mit.edu Willie Boag MIT CSAIL Cambridge, MA wboag@mit.edu Wei-Hung Weng MIT CSAIL Cambridge, MA ckb
+
+### 08_Huang2023_Survey_LLM_Hallucination.pdf  (pages=58, KB=1564)
+1 A Survey on Hallucination in Large Language Models: Principles, Taxonomy, Challenges, and Open Questions LEI HUANG, Harbin Institute of Technology, China WEIJIANG YU, Huawei Inc., China WEITAO MA and WEIHONG ZHONG, Harbin Institute of Technology, China ZHANGYIN FENG and HAOTIAN WANG, Harbin Institute of Technology, China QIANGLONG CHEN and WEIHUA PENG, Huawei Inc., China XIAOCHENG FENG∗, BING QIN, and TING LIU, Har
+
+### 09_Ji2023_Survey_NLG_Hallucination.pdf  (pages=59, KB=3902)
+Survey of Hallucination in Natural Language Generation ZIWEI JI, NAYEON LEE, RITA FRIESKE, TIEZHENG YU, DAN SU, YAN XU, ETSUKO ISHII, YEJIN BANG, DELONG CHEN, WENLIANG DAI, HO SHU CHAN, ANDREA MADOTTO, and PASCALE FUNG, Center for Artificial Intelligence Research (CAiRE), Hong Kong University of Science and Technology, Hong Kong Natural Language Generation (NLG) has improved exponentially in recent years thanks to th
+
+### 10_Maynez2020_Faithfulness_Factuality.pdf  (pages=14, KB=379)
+Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics, pages 1906–1919 July 5 - 10, 2020. c⃝2020 Association for Computational Linguistics 1906 On Faithfulness and Factuality in Abstractive Summarization Joshua Maynez∗ Shashi Narayan∗ Bernd Bohnet Ryan McDonald Google Research {joshuahm,shashinarayan,bohnetbd,ryanmcd}@google.com Abstract It is well known that the standard likelihood 
+
+### 11_Zhang2023_Sirens_Song_Hallucination.pdf  (pages=37, KB=1364)
+Siren’s Song in the AI Ocean: A Survey on Hallucination in Large Language Models Yue Zhang♠∗, Yafu Li♢, Leyang Cui♡†, Deng Cai♡, Lemao Liu♡ Tingchen Fu⋆, Xinting Huang♡, Enbo Zhao♡, Yu Zhang♠, Yulong Chen♢ Chen Xu♡, Longyue Wang♡, Anh Tuan Luu☼, Wei Bi♡, Freda Shi , Shuming Shi♡ ♡Tencent AI lab ♠Soochow University ♢Zhejiang University ⋆Renmin University of China ☼Nanyang Technological University  Toyota Technologic
+
+### 12_Tonmoy2024_Comprehensive_Survey.pdf  (pages=19, KB=322)
+A Comprehensive Survey of Hallucination Mitigation Techniques in Large Language Models S.M Towhidul Islam Tonmoy1, S M Mehedi Zaman1, Vinija Jain3,4∗, Anku Rani2, Vipula Rawte2, Aman Chadha3,4∗, Amitava Das2 1Islamic University of Technology, Bangladesh 2AI Institute, University of South Carolina, USA 3Stanford University, USA, 4Amazon AI, USA towhidulislam@iut-dhaka.edu Abstract As Large Language Models (LLMs) conti
+
+### 13_Rawte2023_Survey_Foundation_Models.pdf  (pages=11, KB=1289)
+A Survey of Hallucination in “Large” Foundation Models Vipula Rawte1∗, Amit Sheth1, Amitava Das1 1AI Institute, University of South Carolina, USA {vrawte}@mailbox.sc.edu Abstract Hallucination in a foundation model (FM) refers to the generation of content that strays from factual reality or includes fabricated in- formation. This survey paper provides an ex- tensive overview of recent efforts that aim to identify, el
+
+### 14_Umapathi2023_MedHALT.pdf  (pages=21, KB=1273)
+Med-HALT: Medical Domain Hallucination Test for Large Language Models Ankit Pal, Logesh Kumar Umapathi, Malaikannan Sankarasubbu Saama AI Research, Chennai, India {ankit.pal, logesh.umapathi, malaikannan.sankarasubbu}@saama.com Abstract This research paper focuses on the challenges posed by hallucinations in large language mod- els (LLMs), particularly in the context of the medical domain. Hallucination, wherein thes
+
+### 15_Jin2019_PubMedQA.pdf  (pages=11, KB=1047)
+Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing, pages 2567–2577, Hong Kong, China, November 3–7, 2019. c⃝2019 Association for Computational Linguistics 2567 PubMedQA: A Dataset for Biomedical Research Question Answering Qiao Jin University of Pittsburgh qiao.jin@pitt.edu Bhuwan Dhingra Carnegie Mellon Uni
+
+### 16_BenAbacha2019_MedQuAD.pdf  (pages=27, KB=1006)
+A QUESTION-ENTAILMENT APPROACH TO QUESTION ANSWERING A PREPRINT Asma Ben Abacha Dina Demner-Fushman benabachaa@nih.gov ddemner@mail.nih.gov Lister Hill Center, U.S. National Library of Medicine, U.S. National Institutes of Health, Bethesda, MD January 25, 2019 ABSTRACT One of the challenges in large-scale information retrieval (IR) is to develop ﬁne-grained and domain- speciﬁc methods to answer natural language quest
+
+### 17_Jin2021_MedQA.pdf  (pages=12, KB=184)
+arXiv:2009.13081v1 [cs.CL] 28 Sep 2020 What Disease does this Patient Have? A Large-scale Open Domain Question Answering Dataset from Medical Exams Di Jin,1 Eileen Pan,1 Nassim Oufattole1 Wei-Hung Weng,1 Hanyi Fang,2 Peter Szolovits1 1 Computer Science and Artiﬁcial Intelligence, MIT, USA 2 Tongji Medical College, HUST, PRC {jindi15,eileenp,nassim,ckbjimmy,psz}@mit.edu, fanghanyi@hust.edu.cn Abstract Open domain ques
+
+### 18_Hendrycks2021_MMLU.pdf  (pages=27, KB=2026)
+Published as a conference paper at ICLR 2021 MEASURING MASSIVE MULTITASK LANGUAGE UNDERSTANDING Dan Hendrycks UC Berkeley Collin Burns Columbia University Steven Basart UChicago Andy Zou UC Berkeley Mantas Mazeika UIUC Dawn Song UC Berkeley Jacob Steinhardt UC Berkeley ABSTRACT We propose a new test to measure a text model’s multitask accuracy. The test covers 57 tasks including elementary mathematics, US history, co
+
+### 19_Pal2022_MedMCQA.pdf  (pages=13, KB=1170)
+Proceedings of Machine Learning Research 174:248–260, 2022 Conference on Health, Inference, and Learning (CHIL) 2022 MedMCQA : A Large-scale Multi-Subject Multi-Choice Dataset for Medical domain Question Answering Ankit Pal ankit.pal@saama.com Logesh Kumar Umapathi logesh.umapathi@saama.com Malaikannan Sankarasubbu malaikannan.sankarasubbu@saama.com Saama AI Research Chennai, India Abstract This paper introduces MedM
+
+### 21_Manakul2023_SelfCheckGPT.pdf  (pages=14, KB=881)
+SELFCHECKGPT: Zero-Resource Black-Box Hallucination Detection for Generative Large Language Models Potsawee Manakul, Adian Liusie, Mark J. F. Gales ALTA Institute, Department of Engineering, University of Cambridge pm574@cam.ac.uk, al826@cam.ac.uk, mjfg@eng.cam.ac.uk Abstract Generative Large Language Models (LLMs) such as GPT-3 are capable of generating highly fluent responses to a wide variety of user prompts. Howe
+
+### 22_Min2023_FActScore.pdf  (pages=25, KB=2452)
+FACTSCORE: Fine-grained Atomic Evaluation of Factual Precision in Long Form Text Generation Sewon Min†1 Kalpesh Krishna†2 Xinxi Lyu1 Mike Lewis4 Wen-tau Yih4 Pang Wei Koh1 Mohit Iyyer2 Luke Zettlemoyer1,4 Hannaneh Hajishirzi1,3 1University of Washington 2University of Massachusetts Amherst 3Allen Institute for AI 4Meta AI {sewon,alrope,pangwei,lsz,hannaneh}@cs.washington.edu {kalpesh,miyyer}@cs.umass.edu {mikelewis,s
+
+### 23_Zheng2023_LLM_as_a_Judge.pdf  (pages=29, KB=1543)
+Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena Lianmin Zheng1∗ Wei-Lin Chiang1∗ Ying Sheng4∗ Siyuan Zhuang1 Zhanghao Wu1 Yonghao Zhuang3 Zi Lin2 Zhuohan Li1 Dacheng Li13 Eric P. Xing35 Hao Zhang12 Joseph E. Gonzalez1 Ion Stoica1 1 UC Berkeley 2 UC San Diego 3 Carnegie Mellon University 4 Stanford 5 MBZUAI Abstract Evaluating large language model (LLM) based chat assistants is challenging due to their broad ca
+
+### 24_Chern2023_FacTool.pdf  (pages=25, KB=2452)
+FACTOOL: Factuality Detection in Generative AI A Tool Augmented Framework for Multi-Task and Multi-Domain Scenarios I-Chun Chern2 Steffi Chern2 Shiqi Chen3 Weizhe Yuan4 Kehua Feng1 Chunting Zhou5 Junxian He6 Graham Neubig2 Pengfei Liu1,7∗ 1Shanghai Jiao Tong University 2Carnegie Mellon University 3City University of Hong Kong 4New York University 5Meta AI 6The Hong Kong University of Science and Technology 7Shanghai 
+
+### 25_Lewis2020_RAG.pdf  (pages=19, KB=864)
+Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks Patrick Lewis†‡, Ethan Perez⋆, Aleksandra Piktus†, Fabio Petroni†, Vladimir Karpukhin†, Naman Goyal†, Heinrich Küttler†, Mike Lewis†, Wen-tau Yih†, Tim Rocktäschel†‡, Sebastian Riedel†‡, Douwe Kiela† †Facebook AI Research; ‡University College London; ⋆New York University; plewis@fb.com Abstract Large pre-trained language models have been shown to store 
+
+### 26_Gao2023_RAG_Survey.pdf  (pages=21, KB=1623)
+1 Retrieval-Augmented Generation for Large Language Models: A Survey Yunfan Gaoa, Yun Xiongb, Xinyu Gaob, Kangxiang Jiab, Jinliu Panb, Yuxi Bic, Yi Daia, Jiawei Suna, Meng Wangc, and Haofen Wang a,c aShanghai Research Institute for Intelligent Autonomous Systems, Tongji University bShanghai Key Laboratory of Data Science, School of Computer Science, Fudan University cCollege of Design and Innovation, Tongji Universit
+
+### 27_Honovich2022_TRUE_Benchmark.pdf  (pages=16, KB=1173)
+TRUE: Re-evaluating Factual Consistency Evaluation Or HonovichT ∗ Roee AharoniG Jonathan HerzigG Hagai TaitelbaumG Vered CohenG Doron KuklianskyG Thomas ScialomM Idan SzpektorG Avinatan HassidimG Yossi MatiasG TTel Aviv University GGoogle Research MMeta AI Tel Aviv, Israel Paris, France or.honovich@gmail.com {roeeaharoni,szpektor}@google.com Abstract Grounded text generation systems often gen- erate text that contain
+
+### 28_Kuhn2023_Semantic_Entropy.pdf  (pages=19, KB=565)
+Published as a conference paper at ICLR 2023 SEMANTIC UNCERTAINTY: LINGUISTIC INVARIANCES FOR UNCERTAINTY ESTIMATION IN NATURAL LANGUAGE GENERATION Lorenz Kuhn, Yarin Gal, Sebastian Farquhar OATML Group, Department of Computer Science, University of Oxford lorenz.kuhn@cs.ox.ac.uk ABSTRACT We introduce a method to measure uncertainty in large language models. For tasks like question answering, it is essential to know 
+
+### 29_Kossen2024_Semantic_Entropy_Probes.pdf  (pages=22, KB=1182)
+Semantic Entropy Probes: Robust and Cheap Hallucination Detection in LLMs Jannik Kossen1∗ Jiatong Han1∗† Muhammed Razzak1∗ Lisa Schut1 Shreshth Malik1 Yarin Gal1 1 OATML, Department of Computer Science, University of Oxford Abstract We propose semantic entropy probes (SEPs), a cheap and reliable method for uncer- tainty quantification in Large Language Models (LLMs). Hallucinations, which are plausible-sounding but f
+
+### 30_Shannon1948_Information_Theory.pdf  (pages=55, KB=357)
+Reprinted with corrections from The Bell System Technical Journal, Vol. 27, pp. 379–423, 623–656, July, October, 1948. A Mathematical Theory of Communication By C. E. SHANNON INTRODUCTION T HE recent development of various methods of modulation such as PCM and PPM which exchange bandwidth for signal-to-noise ratio has intensiﬁed the interest in a general theory of communication. A basis for such a theory is contained
+
+### 32_Xiao2021_Uncertainty_Hallucination.pdf  (pages=11, KB=1892)
+On Hallucination and Predictive Uncertainty in Conditional Language Generation Yijun Xiao, William Yang Wang University of California, Santa Barbara {yijunxiao,william}@cs.ucsb.edu Abstract Despite improvements in performances on dif- ferent natural language generation tasks, deep neural models are prone to hallucinating facts that are incorrect or nonexistent. Different hypotheses are proposed and examined sepa- rat
+
+### 33_Azaria2023_LLM_Lying.pdf  (pages=10, KB=165)
+The Internal State of an LLM Knows When It’s Lying Amos Azaria School of Computer Science, Ariel University, Israel Tom Mitchell Machine Learning Dept., Carnegie Mellon University, Pittsburgh, PA Abstract While Large Language Models (LLMs) have shown exceptional performance in various tasks, one of their most prominent drawbacks is generating inaccurate or false information with a confident tone. In this paper, we pr
+
+### 34_Kadavath2022_Language_Models_Know.pdf  (pages=43, KB=2554)
+Language Models (Mostly) Know What They Know Saurav Kadavath∗, Tom Conerly, Amanda Askell, Tom Henighan, Dawn Drain, Ethan Perez, Nicholas Schiefer, Zac Hatﬁeld-Dodds, Nova DasSarma, Eli Tran-Johnson, Scott Johnston, Sheer El-Showk, Andy Jones, Nelson Elhage, Tristan Hume, Anna Chen, Yuntao Bai, Sam Bowman, Stanislav Fort, Deep Ganguli, Danny Hernandez, Josh Jacobson, Jackson Kernion, Shauna Kravec, Liane Lovitt, Kam
+
+### 35_Bodenreider2004_UMLS.pdf  ERROR Failed to open file 'F:\\cliniguard\\research_papers\\35_Bodenreider2004_UMLS.pdf'.
+
+### 36_Nelson2011_RxNorm.pdf  ERROR Failed to open file 'F:\\cliniguard\\research_papers\\36_Nelson2011_RxNorm.pdf'.
+
+### 37_Ke2017_LightGBM.pdf  (pages=9, KB=357)
+LightGBM: A Highly Efﬁcient Gradient Boosting Decision Tree Guolin Ke1, Qi Meng2, Thomas Finley3, Taifeng Wang1, Wei Chen1, Weidong Ma1, Qiwei Ye1, Tie-Yan Liu1 1Microsoft Research 2Peking University 3 Microsoft Redmond 1{guolin.ke, taifengw, wche, weima, qiwye, tie-yan.liu}@microsoft.com; 2qimeng13@pku.edu.cn; 3tﬁnely@microsoft.com; Abstract Gradient Boosting Decision Tree (GBDT) is a popular machine learning algo- 
+
+### 38_ShwartzZiv2022_Tabular_Data.pdf  (pages=13, KB=468)
+TABULAR DATA: DEEP LEARNING IS NOT ALL YOU NEED Ravid Shwartz-Ziv ravid.ziv@intel.com IT AI Group, Intel Amitai Armon amitai.armon@intel.com IT AI Group, Intel November 24, 2021 ABSTRACT A key element in solving real-life data science problems is selecting the types of models to use. Tree ensemble models (such as XGBoost) are usually recommended for classiﬁcation and regression problems with tabular data. However, se
+
+### 39_Grinsztajn2022_Tree_vs_DeepLearning.pdf  (pages=33, KB=25816)
+Why do tree-based models still outperform deep learning on tabular data? Léo Grinsztajn Soda, Inria Saclay leo.grinsztajn@inria.fr Edouard Oyallon ISIR, CNRS, Sorbonne University Gaël Varoquaux Soda, Inria Saclay Abstract While deep learning has enabled tremendous progress on text and image datasets, its superiority on tabular data is not clear. We contribute extensive benchmarks of standard and novel deep learning m
+
+### 40_Lundberg2017_SHAP_Interpretability.pdf  (pages=10, KB=990)
+A Uniﬁed Approach to Interpreting Model Predictions Scott M. Lundberg Paul G. Allen School of Computer Science University of Washington Seattle, WA 98105 slund1@cs.washington.edu Su-In Lee Paul G. Allen School of Computer Science Department of Genome Sciences University of Washington Seattle, WA 98105 suinlee@cs.washington.edu Abstract Understanding why a model makes a certain prediction can be as crucial as the pred

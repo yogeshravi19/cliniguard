@@ -1,0 +1,18 @@
+{
+  "LightGBM": {
+    "raw_test_ece": 0.032313598373900146,
+    "raw_test_brier": 0.11423481984457233,
+    "isotonic_test_ece": 0.01585471216074248,
+    "isotonic_test_brier": 0.11180591707668655,
+    "sigmoid_test_ece": 0.049872233656285236,
+    "sigmoid_test_brier": 0.11537640740291678
+  },
+  "LogisticRegression": {
+    "raw_test_ece": 0.12526904917160311,
+    "raw_test_brier": 0.16431318293186298,
+    "isotonic_test_ece": 0.018248112407011373,
+    "isotonic_test_brier": 0.14414232450884246,
+    "sigmoid_test_ece": 0.11323993900681065,
+    "sigmoid_test_brier": 0.1583142616795107
+  }
+}

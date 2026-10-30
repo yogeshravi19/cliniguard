@@ -1,0 +1,33 @@
+setting,source,model,oof_auroc
+pooled-6 (grouped),medhalt,LogisticRegression,0.968499427262314
+pooled-6 (grouped),medhalt,LightGBM,0.950171821305842
+pooled-6 (grouped),medhalt,Baseline: answer length (LR),0.8366602654807628
+pooled-6 (grouped),medhalt,Baseline: TF-IDF answer text (LR),1.0
+pooled-6 (grouped),pubmedqa,LogisticRegression,1.0
+pooled-6 (grouped),pubmedqa,LightGBM,0.9999280717843593
+pooled-6 (grouped),pubmedqa,Baseline: answer length (LR),0.982890075704447
+pooled-6 (grouped),pubmedqa,Baseline: TF-IDF answer text (LR),1.0
+pooled-6 (grouped),medquad,LogisticRegression,0.4945334556112999
+pooled-6 (grouped),medquad,LightGBM,0.4828631026235817
+pooled-6 (grouped),medquad,Baseline: answer length (LR),0.4986783190376005
+pooled-6 (grouped),medquad,Baseline: TF-IDF answer text (LR),0.4437880994767222
+pooled-6 (grouped),medhallu,LogisticRegression,0.5714400000000001
+pooled-6 (grouped),medhallu,LightGBM,0.707856
+pooled-6 (grouped),medhallu,Baseline: answer length (LR),0.7497119999999999
+pooled-6 (grouped),medhallu,Baseline: TF-IDF answer text (LR),0.9403440000000001
+pooled-6 (grouped),medhallbench,LogisticRegression,0.25925925925925924
+pooled-6 (grouped),medhallbench,LightGBM,0.4197530864197531
+pooled-6 (grouped),medhallbench,Baseline: answer length (LR),0.8148148148148149
+pooled-6 (grouped),medhallbench,Baseline: TF-IDF answer text (LR),1.0
+pooled-6 (grouped),github,LogisticRegression,1.0
+pooled-6 (grouped),github,LightGBM,1.0
+pooled-6 (grouped),github,Baseline: answer length (LR),1.0
+pooled-6 (grouped),github,Baseline: TF-IDF answer text (LR),1.0
+real-labels-only: Med-HALT+MedHallu (grouped),medhalt,LogisticRegression,0.9706050805201806
+real-labels-only: Med-HALT+MedHallu (grouped),medhalt,LightGBM,0.9602958021696651
+real-labels-only: Med-HALT+MedHallu (grouped),medhalt,Baseline: answer length (LR),0.8441395458527055
+real-labels-only: Med-HALT+MedHallu (grouped),medhalt,Baseline: TF-IDF answer text (LR),1.0
+real-labels-only: Med-HALT+MedHallu (grouped),medhallu,LogisticRegression,0.6461999999999999
+real-labels-only: Med-HALT+MedHallu (grouped),medhallu,LightGBM,0.672464
+real-labels-only: Med-HALT+MedHallu (grouped),medhallu,Baseline: answer length (LR),0.749584
+real-labels-only: Med-HALT+MedHallu (grouped),medhallu,Baseline: TF-IDF answer text (LR),0.9199039999999999

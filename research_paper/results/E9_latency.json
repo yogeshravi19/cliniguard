@@ -1,0 +1,23 @@
+{
+  "hardware_processor": "Intel64 Family 6 Model 60 Stepping 3, GenuineIntel",
+  "n_repetitions": 2000,
+  "sample_answer_tokens": 130,
+  "feature_extraction_only_ms": {
+    "median": 12.895049999968933,
+    "mean": 13.675993400000891,
+    "p95": 21.236145000023043,
+    "p99": 24.06448199996362
+  },
+  "end_to_end_lightgbm_ms": {
+    "median": 15.148999999979651,
+    "mean": 16.181119850000897,
+    "p95": 24.836705000026882,
+    "p99": 28.361558999979476
+  },
+  "end_to_end_logistic_regression_ms": {
+    "median": 13.2783499999789,
+    "mean": 14.064864050001631,
+    "p95": 21.69495999998219,
+    "p99": 24.508731000001376
+  }
+}

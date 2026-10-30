@@ -1,0 +1,27 @@
+{
+  "zero_shot_metrics": {
+    "LightGBM_ZeroShot_AUROC": 0.47900349999999997,
+    "LightGBM_ZeroShot_AP": 0.4740732240841328,
+    "LogisticRegression_ZeroShot_AUROC": 0.2429175,
+    "LogisticRegression_ZeroShot_AP": 0.35658930462041116,
+    "CDT_Univariate_AUROC": 0.7959245000000001,
+    "Med_ISP_Univariate_AUROC": 0.514235,
+    "C_AAS_Univariate_AUROC": 0.5049785,
+    "Med_EEM_Univariate_AUROC": 0.5094159999999999
+  },
+  "specificity_metrics": {
+    "Pristine_NIH_Answers_N": 1000,
+    "Placed_in_GREEN_LowRisk_Count": 838,
+    "Pristine_Specificity_GREEN_Rate_pct": 83.8,
+    "False_Alarm_RED_HighRisk_Count": 5,
+    "False_Alarm_RED_Rate_pct": 0.5
+  },
+  "cv_summary": {
+    "AUROC_mean": 0.8065633333333334,
+    "AUROC_std": 0.010858468214328955,
+    "AP_mean": 0.8189905503301202,
+    "AP_std": 0.013546822244358261,
+    "F1_mean": 0.713313023570739,
+    "F1_std": 0.011930297614940365
+  }
+}
