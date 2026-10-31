@@ -33,10 +33,10 @@ plt.rcParams.update({
 
 
 def fig_architecture():
-    fig, ax = plt.subplots(figsize=(10.5, 4.2))
+    fig, ax = plt.subplots(figsize=(10.5, 4.4))
     ax.axis("off")
     ax.set_xlim(0, 100)
-    ax.set_ylim(0, 42)
+    ax.set_ylim(0, 45)
 
     def box(x, y, w, h, txt, fc, ec="#2b5b84"):
         ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.5", fc=fc, ec=ec, lw=1.2))
@@ -46,27 +46,27 @@ def fig_architecture():
         ax.annotate("", xy=(x2, y2), xytext=(x1, y1),
                     arrowprops=dict(arrowstyle="-|>", color="#333333", lw=1.2, mutation_scale=10))
 
-    box(1, 15, 14, 11, "Medical Query (Q)\n+ LLM Answer (A)", "#e8f1fb")
-    box(19, 15, 14, 11, "Bilingual\nTokenization\n(Char/Subword)", "#f4f4f4")
+    box(1, 15, 14, 11, "Medical Question (Q)\n+ AI Answer (A)", "#e8f1fb")
+    box(19, 15, 14, 11, "Text Cleaning &\nWord Splitting\n(Lowercase Words)", "#f4f4f4")
     arr(15, 20.5, 19, 20.5)
 
     sig = [
-        ("Med-ISP\n(Drug Sparsity)", 32),
-        ("C-AAS\n(Context Sparsity)", 22.5),
-        ("Med-EEM\n(Entropy Measure)", 13),
-        ("CDT\n(Cosine Drift)", 3.5),
+        ("Med-ISP\n(Missing Drug Terms)", 32),
+        ("C-AAS\n(Missing Patient Context)", 22.5),
+        ("Med-EEM\n(Uncertainty Words)", 13),
+        ("CDT\n(Question-Answer Drift)", 3.5),
     ]
     for t, y in sig:
         box(39, y, 17, 7.5, t, "#fff5dd", ec="#d48806")
         arr(33, 20.5, 39, y + 3.75)
         arr(56, y + 3.75, 62, 20.5)
 
-    box(62, 15, 16, 11, "StandardScaler\n+ LightGBM\n(Class-Balanced)", "#e6f7ea", ec="#237804")
+    box(62, 15, 16, 11, "Z-Score Scaling\n+ LightGBM Model\n(Class-Balanced)", "#e6f7ea", ec="#237804")
     arr(78, 20.5, 83, 20.5)
 
-    box(83, 14, 16, 13, "Calibrated Band\n\nGREEN (<0.35)\nAMBER (0.35-0.65)\nRED (>0.65)", "#fff1f0", ec="#cf1322")
+    box(83, 14, 16, 13, "Clinical Risk Tier\n\nGREEN (<0.35)\nAMBER (0.35-0.65)\nRED (>0.65)", "#fff1f0", ec="#cf1322")
 
-    ax.text(50, 40, "CliniGuard Framework: CPU-Only, Interpretable Hallucination Risk Scoring",
+    ax.text(50, 42.5, "CliniGuard Pipeline: Fast CPU Hallucination Risk Scoring from Plain Text",
             ha="center", fontsize=11, weight="bold", color="#1f2937")
 
     fig.savefig(F / "fig1_architecture.png", bbox_inches="tight")
@@ -155,7 +155,7 @@ def fig_baselines():
     ax.set_ylabel("AUROC (Mean ± SD)", fontweight="bold")
     ax.set_ylim(0.5, 1.05)
     ax.axhline(0.5, color="red", linestyle=":", lw=0.9, alpha=0.7)
-    ax.set_title("CliniGuard vs Trivial Baselines Across Evaluation Protocols", pad=10, fontweight="bold")
+    ax.set_title("CliniGuard vs Baseline Models Across Evaluation Splits", pad=10, fontweight="bold")
     ax.legend(fontsize=8, loc="lower right", framealpha=0.9)
 
     fig.savefig(F / "fig4_baselines.png", bbox_inches="tight")

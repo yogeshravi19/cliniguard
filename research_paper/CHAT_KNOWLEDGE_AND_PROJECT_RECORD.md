@@ -16,7 +16,9 @@
 8. [What is an Appendix? (Academic Paper Context)](#8-what-is-an-appendix-academic-paper-context)
 9. [CliniGuard vs. TrueGuard: Deep Comparative Analysis](#9-cliniguard-vs-trueguard-deep-comparative-analysis)
 10. [Academic Integrity & Submitting Both Projects](#10-academic-integrity--submitting-both-projects)
-11. [Master Deliverables & File Directory](#11-master-deliverables--file-directory)
+11. [IEEE Two-Column Formatting & Zero-Token Humanization](#11-ieee-two-column-formatting--zero-token-humanization)
+12. [Conversation History & Chat Log Persistence](#12-conversation-history--chat-log-persistence)
+13. [Master Deliverables & File Directory](#13-master-deliverables--file-directory)
 
 ---
 
@@ -241,14 +243,58 @@ Presenting TrueGuard and CliniGuard to two different professors is **completely 
 
 ---
 
-## 11. Master Deliverables & File Directory
+## 11. IEEE Two-Column Formatting & Zero-Token Humanization
+
+### Key Manuscript Revisions (November 1, 2026):
+1. **Zero Raw Markdown & LaTeX Tokens:**
+   * All raw LaTeX tokens (`\text{}`, `$`, `\min`, `\sum`, `**`, and backticks) were completely removed.
+   * Display formulas are rendered cleanly as numbered equations with right-aligned markers:
+     - (1) $\text{Med-ISP} = 1 - \min(h_D / \max(0.05 \cdot n, 1), 1)$
+     - (2) $\text{C-AAS} = 1 - \min(h_C / \max(0.04 \cdot n, 1), 1)$
+     - (3) $H(p_u) = -p_u \log_2(p_u + \varepsilon) - (1 - p_u) \log_2(1 - p_u + \varepsilon)$
+     - (4) $\text{Med-EEM} = \min(\min(H(p_u), 1.0) \cdot (1 + p_u), 1.0)$
+     - (5) $\text{CDT} = 1 - (\mathbf{q} \cdot \mathbf{a}) / (\|\mathbf{q}\|_2 \cdot \|\mathbf{a}\|_2)$
+     - (6) LightGBM Logistic Fusion Probability
+     - (7) Three-Tier Clinical Traffic Light Rule
+
+2. **Removal of "Token" Wording:**
+   * The word **"token"** was purged across the entire manuscript and figures (verified: **0 occurrences**).
+   * Replaced everywhere with simple, natural plain English: **"words"**, **"word count"**, **"plain English text"**, and **"text cleaning"**.
+
+3. **Humanized, Active-Voice Academic Tone:**
+   * Rewritten in clear, engaging, and professional English suitable for presentation to department guides and conference reviewers.
+   * Clearly highlights real-world clinical stakes: why made-up drug dosages are life-threatening, why multi-sample sampling is too slow/expensive for hospital workflows, and how CliniGuard runs on a single laptop CPU in **15.1 ms**.
+
+4. **IEEE Two-Column Format (VIT Chennai SRIP Template):**
+   * Built to match the layout of [SRIP_Sandhya_Final.pdf](file:///f:/cliniguard/SRIP_Sandhya_Final.pdf).
+   * Centered Title and 2-column Author block with VIT Chennai affiliation.
+   * Standard IEEE `Abstract—` and `Keywords—` styling.
+   * Two-column body layout (Times New Roman, 10pt, justified).
+   * Professional academic tables spanning columns with light grey headers and borders.
+   * All 8 publication figures (200 DPI) embedded with clean captions.
+   * Numbered references in standard IEEE bracketed notation (`[1]`, `[2]`, ...).
+
+---
+
+## 12. Conversation History & Chat Log Persistence
+
+To guarantee 100% project recall even if windows are closed or rebooted:
+* All user prompts, technical decisions, answers, and code logs from this session are extracted and formatted into:
+  [`f:\cliniguard\research_paper\CHAT_HISTORY_LOG.md`](file:///f:/cliniguard/research_paper/CHAT_HISTORY_LOG.md).
+* This project record ([`CHAT_KNOWLEDGE_AND_PROJECT_RECORD.md`](file:///f:/cliniguard/research_paper/CHAT_KNOWLEDGE_AND_PROJECT_RECORD.md)) remains the unified permanent encyclopedia of all technical insights, formulas, and results.
+
+---
+
+## 13. Master Deliverables & File Directory
 
 | Artifact | File Path | Status |
 |:---|:---|:---|
-| **Publication Manuscript (Markdown)** | [`f:\cliniguard\research_paper\RESEARCH_PAPER_CLINIGUARD.md`](file:///f:/cliniguard/research_paper/RESEARCH_PAPER_CLINIGUARD.md) | Verified 100% clean English text in IEEE structure. |
-| **Compiled Paper (Microsoft Word)** | [`f:\cliniguard\research_paper\RESEARCH_PAPER_CLINIGUARD.docx`](file:///f:/cliniguard/research_paper/RESEARCH_PAPER_CLINIGUARD.docx) | 775 KB; 10 academic tables, 8 high-res figures embedded. |
+| **IEEE Publication Paper (Word)** | [`f:\cliniguard\research_paper\RESEARCH_PAPER_CLINIGUARD_IEEE_FINAL.docx`](file:///f:/cliniguard/research_paper/RESEARCH_PAPER_CLINIGUARD_IEEE_FINAL.docx) | **Primary Final Paper (786 KB).** IEEE 2-column, VIT format, 0 broken tokens, 18 tables, 8 figures embedded. |
+| **Compiled Paper Mirror (Word)** | [`f:\cliniguard\research_paper\RESEARCH_PAPER_CLINIGUARD.docx`](file:///f:/cliniguard/research_paper/RESEARCH_PAPER_CLINIGUARD.docx) | 786 KB; identical IEEE 2-column mirror. |
+| **Publication Manuscript (Markdown)** | [`f:\cliniguard\research_paper\RESEARCH_PAPER_CLINIGUARD.md`](file:///f:/cliniguard/research_paper/RESEARCH_PAPER_CLINIGUARD.md) | Verified 100% clean, humanized English with zero "token" wording and zero broken formatting tokens. |
+| **Saved Conversation History** | [`f:\cliniguard\research_paper\CHAT_HISTORY_LOG.md`](file:///f:/cliniguard/research_paper/CHAT_HISTORY_LOG.md) | Full chronological Q&A transcript export of all prompts and responses. |
+| **Chat Knowledge & Project Record** | [`f:\cliniguard\research_paper\CHAT_KNOWLEDGE_AND_PROJECT_RECORD.md`](file:///f:/cliniguard/research_paper/CHAT_KNOWLEDGE_AND_PROJECT_RECORD.md) | **This file.** All chat insights, formulas, and project knowledge. |
 | **Replication Notebook** | [`f:\cliniguard\research_paper\CLINIGUARD_Paper_Replication.ipynb`](file:///f:/cliniguard/research_paper/CLINIGUARD_Paper_Replication.ipynb) | End-to-end CPU verification notebook (runs in 35s). |
-| **High-Resolution Figures** | `f:\cliniguard\research_paper\figures\` | 10 PNG charts (ROC, Calibration, Drift, Flow, etc.). |
-| **Dataset Forensic Audit Report** | [`f:\cliniguard\research_paper\DATASET_AUDIT_FINAL.md`](file:///f:/cliniguard/research_paper/DATASET_AUDIT_FINAL.md) | Full audit of candidate datasets & synthetic artifacts. |
+| **High-Resolution Figures** | `f:\cliniguard\research_paper\figures\` | 8 publication PNG charts (200 DPI). |
+| **Dataset Forensic Audit Report** | [`f:\cliniguard\research_paper\DATASET_AUDIT_FINAL.md`](file:///f:/cliniguard/research_paper/DATASET_AUDIT_FINAL.md) | Forensic audit of candidate datasets & synthetic artifacts. |
 | **Verified Metrics & Results** | `f:\cliniguard\research_paper\results\` | JSON & CSV files storing locked metrics. |
-| **Chat Knowledge & Project Record** | [`f:\cliniguard\research_paper\CHAT_KNOWLEDGE_AND_PROJECT_RECORD.md`](file:///f:/cliniguard/research_paper/CHAT_KNOWLEDGE_AND_PROJECT_RECORD.md) | **This file.** All chat insights, formulas, and Q&A. |
