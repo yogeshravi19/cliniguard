@@ -1,0 +1,13 @@
+Model,AUROC,AP,F1,Acc,Brier
+LogisticRegression,0.8166,0.8301,0.7326,0.7643,0.1703
+LightGBM,0.9034,0.8908,0.7781,0.8125,0.1241
+MLP-4L(128-64-32-16),0.8869,0.8699,0.7619,0.8096,0.1322
+MLP-2L(256-128),0.8881,0.8712,0.7613,0.8111,0.1305
+Baseline: Majority Class,0.5,0.4323,0.0,0.5677,0.4323
+Baseline: All Positive (Always 1),0.5,0.4323,0.6036,0.4323,0.5677
+Baseline: answer length (LR),0.7246,0.6063,0.4097,0.5417,0.23
+Baseline: answer length (LGB),0.8854,0.8087,0.801,0.8125,0.136
+Baseline: CDT + length (LR),0.9149,0.8418,0.8394,0.8554,0.112
+Baseline: CDT + length (LGB),0.9556,0.9455,0.8726,0.8887,0.0847
+CliniGuard + length (LGB),0.9594,0.9503,0.8766,0.8925,0.0812
+Baseline: TF-IDF answer text (LR),0.9932,0.9916,0.9438,0.9523,0.0509
