@@ -1,18 +1,18 @@
 {
   "LightGBM": {
-    "raw_test_ece": 0.032313598373900146,
-    "raw_test_brier": 0.11423481984457233,
-    "isotonic_test_ece": 0.01585471216074248,
-    "isotonic_test_brier": 0.11180591707668655,
-    "sigmoid_test_ece": 0.049872233656285236,
-    "sigmoid_test_brier": 0.11537640740291678
+    "raw_test_ece": 0.03475760355933397,
+    "raw_test_brier": 0.1241316374646838,
+    "isotonic_test_ece": 0.0206423449717298,
+    "isotonic_test_brier": 0.12395432646663503,
+    "sigmoid_test_ece": 0.04168875746262177,
+    "sigmoid_test_brier": 0.12697470691061352
   },
   "LogisticRegression": {
-    "raw_test_ece": 0.12526904917160311,
-    "raw_test_brier": 0.16431318293186298,
-    "isotonic_test_ece": 0.018248112407011373,
-    "isotonic_test_brier": 0.14414232450884246,
-    "sigmoid_test_ece": 0.11323993900681065,
-    "sigmoid_test_brier": 0.1583142616795107
+    "raw_test_ece": 0.1317907303459852,
+    "raw_test_brier": 0.17034875766670884,
+    "isotonic_test_ece": 0.02559909426007475,
+    "isotonic_test_brier": 0.14907627104899485,
+    "sigmoid_test_ece": 0.12150003163090868,
+    "sigmoid_test_brier": 0.16432828027798607
   }
 }

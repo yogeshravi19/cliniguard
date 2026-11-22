@@ -51,9 +51,9 @@ def fig_architecture():
     arr(15, 20.5, 19, 20.5)
 
     sig = [
-        ("Med-ISP\n(Missing Drug Terms)", 32),
-        ("C-AAS\n(Missing Patient Context)", 22.5),
-        ("Med-EEM\n(Uncertainty Words)", 13),
+        ("Med-ISP\n(Few Drug-Lexicon Hits)", 32),
+        ("C-AAS\n(Few Context-Lexicon Hits)", 22.5),
+        ("Med-EEM\n(Hedging-Word Entropy)", 13),
         ("CDT\n(Question-Answer Drift)", 3.5),
     ]
     for t, y in sig:
@@ -66,7 +66,7 @@ def fig_architecture():
 
     box(83, 14, 16, 13, "Clinical Risk Tier\n\nGREEN (<0.35)\nAMBER (0.35-0.65)\nRED (>0.65)", "#fff1f0", ec="#cf1322")
 
-    ax.text(50, 42.5, "CliniGuard Pipeline: Fast CPU Hallucination Risk Scoring from Plain Text",
+    ax.text(50, 42.5, "CliniGuard Pipeline: Four Lexical Signals to a Risk Tier",
             ha="center", fontsize=11, weight="bold", color="#1f2937")
 
     fig.savefig(F / "fig1_architecture.png", bbox_inches="tight")

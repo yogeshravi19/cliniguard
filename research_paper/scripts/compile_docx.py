@@ -179,22 +179,16 @@ def add_author_header(doc, title_text: str):
     r_t.bold = True
     r_t.font.color.rgb = BLACK
 
-    tbl = doc.add_table(rows=1, cols=2)
+    tbl = doc.add_table(rows=1, cols=1)
     tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
     set_borderless_table(tbl)
 
     authors = [
         [
-            ("Yogesh Ravi M", "1", False),
+            ("Yogesh Ravi M", "", False),
             ("School of Computer Science and Engineering", "", False),
             ("Vellore Institute of Technology, Chennai, India", "", False),
             ("yogeshravi.m2022@vitstudent.ac.in", "", False),
-        ],
-        [
-            ("Guide / Corresponding Author", "1*", False),
-            ("School of Computer Science and Engineering", "", False),
-            ("Vellore Institute of Technology, Chennai, India", "", False),
-            ("School of Computer Science & Engineering, VIT Chennai", "", False),
         ],
     ]
 

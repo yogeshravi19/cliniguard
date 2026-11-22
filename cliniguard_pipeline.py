@@ -99,40 +99,84 @@ def load_source(source: str, n: int = 500) -> pd.DataFrame:
     return df
 
 # ─────────────────────────────────────────────────────────────────────────────
-# BILINGUAL CLINICAL LEXICONS
+# BILINGUAL CLINICAL LEXICONS WITH INFLECTION AND UNIT HANDLING
 # ─────────────────────────────────────────────────────────────────────────────
-DRUG_TERMS = {
-    "mg","dose","dosage","tablet","capsule","injection","oral","iv","intravenous",
-    "subcutaneous","amoxicillin","ibuprofen","metformin","insulin","aspirin",
-    "atorvastatin","omeprazole","paracetamol","acetaminophen","warfarin","heparin",
-    "morphine","prednisone","antibiotic","medication","drug","prescribe","pharmacy",
-    "rxnorm","formulary","contraindication","side effect","adverse",
-    # Chinese
-    "毫克","剂量","口服","注射","静脉","胶囊","药片","阿司匹林","阿莫西林",
-    "二甲双胍","胰岛素","副作用","不良反应"
+import re
+
+# Units pattern handling numbers directly attached to units (e.g. 500mg, 10mg/kg, 5ml, 100mcg)
+RE_UNITS_EN = re.compile(r'(?:(?<=\d)|(?<=\b))(?:mg|mcg|µg|g|ml|l|units?)(?:\b|(?=[/\s,\.\)]))', re.IGNORECASE)
+
+# English Pharmacology Terms: Common drug names (RxNorm top prescribed classes) and dosage forms
+DRUG_TERMS_EN = {
+    # Dosing forms, routes, and clinical pharmacology terms
+    "tablet", "tablets", "capsule", "capsules", "pill", "pills", "injection", "injections",
+    "injectable", "oral", "orally", "subcutaneous", "subcutaneously", "iv", "intravenous",
+    "intravenously", "infusion", "infusions", "dose", "doses", "dosing", "dosage", "dosages",
+    "prescribe", "prescribes", "prescribed", "prescribing", "prescription", "prescriptions",
+    "pharmacy", "rxnorm", "formulary", "medication", "medications", "drug", "drugs",
+    "antibiotic", "antibiotics", "antimicrobial", "analgesic", "analgesics", "statin", "statins",
+    "side effect", "side effects", "adverse effect", "adverse effects", "adverse reaction",
+    "adverse reactions", "therapy", "therapies",
+    # Specific common pharmacological agents (RxNorm top prescribed classes)
+    "amoxicillin", "ibuprofen", "metformin", "insulin", "insulins", "aspirin", "atorvastatin",
+    "omeprazole", "paracetamol", "acetaminophen", "warfarin", "heparin", "morphine", "prednisone",
+    "lisinopril", "amlodipine", "levothyroxine", "azithromycin", "ciprofloxacin", "doxycycline",
+    "albuterol", "furosemide", "losartan", "gabapentin", "hydrochlorothiazide", "sertraline",
+    "simvastatin", "pantoprazole", "escitalopram", "clopidogrel", "montelukast", "rosuvastatin"
 }
 
-CONTEXT_TERMS = {
-    "patient","allergy","allergic","age","weight","pediatric","adult","vital",
-    "history","medication","diagnosis","symptom","report","female","male",
-    "blood pressure","heart rate","temperature","chronic","acute","clinical",
-    "contraindication","comorbid","complication",
-    # Chinese
-    "患者","过敏","年龄","体重","儿童","幼儿","成人","病史","诊断","症状","报告"
+DRUG_TERMS_ZH = {
+    "毫克", "剂量", "口服", "注射", "静脉", "胶囊", "药片", "阿司匹林", "阿莫西林",
+    "二甲双胍", "胰岛素", "副作用", "不良反应"
 }
 
-UNCERTAIN_WORDS = {
-    "maybe","possibly","might","could","uncertain","unclear","unknown",
-    "approximately","seems","appears","suggest","perhaps","likely","probably",
-    "assume","think","believe","estimate","roughly","sometimes","often",
-    # Chinese
-    "可能","或许","大概","似乎","不确定","未知","大约","估计","有时","经常"
+RE_DRUG_EN = re.compile(r'\b(?:' + '|'.join(re.escape(t) for t in sorted(DRUG_TERMS_EN, key=len, reverse=True)) + r')\b', re.IGNORECASE)
+
+# English Clinical Context Terms: Demographics, symptoms, vital signs, chronicity
+CONTEXT_TERMS_EN = {
+    "patient", "patients", "pediatric", "pediatrics", "paediatric", "paediatrics",
+    "adult", "adults", "child", "children", "infant", "infants", "elderly", "geriatric", "geriatrics",
+    "female", "females", "male", "males", "woman", "women", "man", "men", "age", "aged", "ages",
+    "weight", "weights", "vital", "vitals", "allergy", "allergies", "allergic", "history", "histories",
+    "diagnosis", "diagnoses", "diagnostic", "symptom", "symptoms", "symptomatic", "sign", "signs",
+    "report", "reports", "reported", "reporting", "blood pressure", "heart rate", "pulse",
+    "temperature", "temperatures", "chronic", "acute", "clinical", "clinically",
+    "contraindication", "contraindications", "contraindicated", "comorbid", "comorbidities",
+    "comorbidity", "complication", "complications"
 }
+
+CONTEXT_TERMS_ZH = {
+    "患者", "过敏", "年龄", "体重", "儿童", "幼儿", "成人", "病史", "诊断", "症状", "报告"
+}
+
+RE_CONTEXT_EN = re.compile(r'\b(?:' + '|'.join(re.escape(t) for t in sorted(CONTEXT_TERMS_EN, key=len, reverse=True)) + r')\b', re.IGNORECASE)
+
+# English Uncertainty / Hedging Words (including inflections)
+UNCERTAIN_WORDS_EN = {
+    "maybe", "possibly", "possibility", "possible", "might", "could", "uncertain", "uncertainty",
+    "unclear", "unknown", "approximately", "approximate", "seems", "seemed", "seeming", "seem",
+    "appears", "appeared", "appearing", "appear", "suggest", "suggests", "suggested", "suggesting",
+    "perhaps", "likely", "likelihood", "probably", "probable", "probability", "assume", "assumes",
+    "assumed", "assuming", "think", "thinks", "thinking", "thought", "believe", "believes",
+    "believed", "believing", "estimate", "estimates", "estimated", "estimating", "roughly", "rough",
+    "sometimes", "often"
+}
+
+UNCERTAIN_WORDS_ZH = {
+    "可能", "或许", "大概", "似乎", "不确定", "未知", "大约", "估计", "有时", "经常"
+}
+
+RE_UNCERTAIN_EN = re.compile(r'\b(?:' + '|'.join(re.escape(t) for t in sorted(UNCERTAIN_WORDS_EN, key=len, reverse=True)) + r')\b', re.IGNORECASE)
 
 DOSING_KEYWORDS   = {"dose","dosage","mg","ml","tablet","capsule","prescribe",
                      "administer","inject","titrate","frequency","tds","bd","qds"}
 ALLERGY_KEYWORDS  = {"allergy","allergic","hypersensitivity","anaphylaxis",
                      "reaction","sensitivity","contraindicated","penicillin"}
+
+# Backward compatibility sets
+DRUG_TERMS = DRUG_TERMS_EN | DRUG_TERMS_ZH
+CONTEXT_TERMS = CONTEXT_TERMS_EN | CONTEXT_TERMS_ZH
+UNCERTAIN_WORDS = UNCERTAIN_WORDS_EN | UNCERTAIN_WORDS_ZH
 
 # ─────────────────────────────────────────────────────────────────────────────
 # TOKENIZER
@@ -158,47 +202,57 @@ def tokenize(text: str) -> list:
 
 # ─────────────────────────────────────────────────────────────────────────────
 # SIGNAL 1 — Med-ISP  (Medical Information State Probe)
-# Drug-term density: absence of drug terms = hallucination risk
+# Drug-term density using word-boundary & unit matching (handles 500mg, tablets, etc.)
 # ─────────────────────────────────────────────────────────────────────────────
 def med_isp(text: str) -> float:
-    words = tokenize(text)
+    if not isinstance(text, str) or not text.strip():
+        return 1.0
+    text_low = text.lower()
+    words = tokenize(text_low)
     if not words:
         return 1.0
-    hits = sum(1 for w in words if any(t in w for t in DRUG_TERMS))
+    hits_en = len(RE_DRUG_EN.findall(text_low)) + len(RE_UNITS_EN.findall(text_low))
+    hits_zh = sum(1 for z in DRUG_TERMS_ZH if z in text_low)
+    hits = hits_en + hits_zh
     density = hits / max(len(words) * 0.05, 1)
     return round(1.0 - min(density, 1.0), 4)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # SIGNAL 2 — C-AAS  (Clinical Attention Alignment Score)
-# Clinical-context term density: ignoring patient context = risk
+# Clinical-context term density using word-boundary & inflection matching
 # ─────────────────────────────────────────────────────────────────────────────
 def c_aas(text: str) -> float:
-    words = tokenize(text)
+    if not isinstance(text, str) or not text.strip():
+        return 1.0
+    text_low = text.lower()
+    words = tokenize(text_low)
     if not words:
         return 1.0
-    hits = sum(1 for w in words if any(t in w for t in CONTEXT_TERMS))
+    hits_en = len(RE_CONTEXT_EN.findall(text_low))
+    hits_zh = sum(1 for z in CONTEXT_TERMS_ZH if z in text_low)
+    hits = hits_en + hits_zh
     density = hits / max(len(words) * 0.04, 1)
     return round(1.0 - min(density, 1.0), 4)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # SIGNAL 3 — Med-EEM  (Medical Entropy-Energy Monitor)
-# Shannon binary entropy over uncertain-word probability
-# H(p) = −p·log₂(p) − (1−p)·log₂(1−p)   where p = uncertain words / total
+# Hedging density & Shannon binary entropy over uncertain-word probability
 # ─────────────────────────────────────────────────────────────────────────────
 def med_eem(text: str) -> float:
-    words = tokenize(text)
+    if not isinstance(text, str) or not text.strip():
+        return 0.0
+    text_low = text.lower()
+    words = tokenize(text_low)
     n = len(words)
     if n == 0:
         return 0.0
-    u_hits = sum(1 for w in words if any(u in w for u in UNCERTAIN_WORDS))
-    p = u_hits / n
+    hits_en = len(RE_UNCERTAIN_EN.findall(text_low))
+    hits_zh = sum(1 for z in UNCERTAIN_WORDS_ZH if z in text_low)
+    p = (hits_en + hits_zh) / n
     eps = 1e-9
     # Binary Shannon entropy → max = 1.0 at p=0.5
     H = -(p * math.log2(p + eps) + (1 - p) * math.log2(1 - p + eps))
-    # Normalise: max theoretical H_binary = 1.0 bit; scale to [0,1]
-    score = min(H, 1.0)
-    # Bias: high uncertainty words = higher score
-    score = score * (1 + p)  # amplify if p is high
+    score = min(H, 1.0) * (1 + p)
     return round(min(score, 1.0), 4)
 
 # ─────────────────────────────────────────────────────────────────────────────

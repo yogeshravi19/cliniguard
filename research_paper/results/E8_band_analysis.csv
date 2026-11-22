@@ -1,7 +1,55 @@
-model,band,n_samples,share_pct,hallucination_rate_pct
-LightGBM,GREEN,978,47.13,9.92
-LightGBM,AMBER,412,19.86,47.57
-LightGBM,RED,685,33.01,88.18
-LogisticRegression,GREEN,838,40.39,19.93
-LogisticRegression,AMBER,568,27.37,25.35
-LogisticRegression,RED,669,32.24,87.59
+source,model,band,n_samples,share_pct,hallucinations_in_band,hallucination_rate_pct,false_reassurance_rate_pct,random_expected_frr_pct,safety_lift_vs_random
+Pooled Test,LightGBM,GREEN,895,43.13,96,10.73,10.7,43.13,0.752
+Pooled Test,LightGBM,AMBER,507,24.43,204,40.24,0.0,0.0,0.0
+Pooled Test,LightGBM,RED,673,32.43,597,88.71,0.0,0.0,0.0
+Pooled Test,LogisticRegression,GREEN,806,38.84,165,20.47,18.39,38.84,0.527
+Pooled Test,LogisticRegression,AMBER,588,28.34,153,26.02,0.0,0.0,0.0
+Pooled Test,LogisticRegression,RED,681,32.82,579,85.02,0.0,0.0,0.0
+Pooled Test,Baseline: CDT + length (LR),GREEN,955,46.02,64,6.7,7.13,46.02,0.845
+Pooled Test,Baseline: CDT + length (LR),AMBER,290,13.98,118,40.69,0.0,0.0,0.0
+Pooled Test,Baseline: CDT + length (LR),RED,830,40.0,715,86.14,0.0,0.0,0.0
+Pooled Test,Baseline: CDT + length (LGB),GREEN,1029,49.59,67,6.51,7.47,49.59,0.849
+Pooled Test,Baseline: CDT + length (LGB),AMBER,219,10.55,89,40.64,0.0,0.0,0.0
+Pooled Test,Baseline: CDT + length (LGB),RED,827,39.86,741,89.6,0.0,0.0,0.0
+Pooled Test,Baseline: answer length (LR),GREEN,372,17.93,0,0.0,0.0,17.93,1.0
+Pooled Test,Baseline: answer length (LR),AMBER,1223,58.94,630,51.51,0.0,0.0,0.0
+Pooled Test,Baseline: answer length (LR),RED,480,23.13,267,55.62,0.0,0.0,0.0
+Pooled Test,Baseline: answer length (LGB),GREEN,839,40.43,56,6.67,6.24,40.43,0.846
+Pooled Test,Baseline: answer length (LGB),AMBER,365,17.59,160,43.84,0.0,0.0,0.0
+Pooled Test,Baseline: answer length (LGB),RED,871,41.98,681,78.19,0.0,0.0,0.0
+Med-HALT,LightGBM,GREEN,661,45.49,23,3.48,3.91,45.49,0.914
+Med-HALT,LightGBM,AMBER,201,13.83,26,12.94,0.0,0.0,0.0
+Med-HALT,LightGBM,RED,591,40.67,539,91.2,0.0,0.0,0.0
+Med-HALT,LogisticRegression,GREEN,399,27.46,2,0.5,0.34,27.46,0.988
+Med-HALT,LogisticRegression,AMBER,422,29.04,38,9.0,0.0,0.0,0.0
+Med-HALT,LogisticRegression,RED,632,43.5,548,86.71,0.0,0.0,0.0
+Med-HALT,Baseline: CDT + length (LR),GREEN,747,51.41,9,1.2,1.53,51.41,0.97
+Med-HALT,Baseline: CDT + length (LR),AMBER,161,11.08,64,39.75,0.0,0.0,0.0
+Med-HALT,Baseline: CDT + length (LR),RED,545,37.51,515,94.5,0.0,0.0,0.0
+Med-HALT,Baseline: CDT + length (LGB),GREEN,803,55.26,12,1.49,2.04,55.26,0.963
+Med-HALT,Baseline: CDT + length (LGB),AMBER,55,3.79,14,25.45,0.0,0.0,0.0
+Med-HALT,Baseline: CDT + length (LGB),RED,595,40.95,562,94.45,0.0,0.0,0.0
+Med-HALT,Baseline: answer length (LR),GREEN,372,25.6,0,0.0,0.0,25.6,1.0
+Med-HALT,Baseline: answer length (LR),AMBER,1063,73.16,588,55.32,0.0,0.0,0.0
+Med-HALT,Baseline: answer length (LR),RED,18,1.24,0,0.0,0.0,0.0,0.0
+Med-HALT,Baseline: answer length (LGB),GREEN,653,44.94,14,2.14,2.38,44.94,0.947
+Med-HALT,Baseline: answer length (LGB),AMBER,192,13.21,84,43.75,0.0,0.0,0.0
+Med-HALT,Baseline: answer length (LGB),RED,608,41.84,490,80.59,0.0,0.0,0.0
+MedHallu,LightGBM,GREEN,234,37.62,73,31.2,23.62,37.62,0.372
+MedHallu,LightGBM,AMBER,306,49.2,178,58.17,0.0,0.0,0.0
+MedHallu,LightGBM,RED,82,13.18,58,70.73,0.0,0.0,0.0
+MedHallu,LogisticRegression,GREEN,407,65.43,163,40.05,52.75,65.43,0.194
+MedHallu,LogisticRegression,AMBER,166,26.69,115,69.28,0.0,0.0,0.0
+MedHallu,LogisticRegression,RED,49,7.88,31,63.27,0.0,0.0,0.0
+MedHallu,Baseline: CDT + length (LR),GREEN,208,33.44,55,26.44,17.8,33.44,0.468
+MedHallu,Baseline: CDT + length (LR),AMBER,129,20.74,54,41.86,0.0,0.0,0.0
+MedHallu,Baseline: CDT + length (LR),RED,285,45.82,200,70.18,0.0,0.0,0.0
+MedHallu,Baseline: CDT + length (LGB),GREEN,226,36.33,55,24.34,17.8,36.33,0.51
+MedHallu,Baseline: CDT + length (LGB),AMBER,164,26.37,75,45.73,0.0,0.0,0.0
+MedHallu,Baseline: CDT + length (LGB),RED,232,37.3,179,77.16,0.0,0.0,0.0
+MedHallu,Baseline: answer length (LR),GREEN,0,0.0,0,0.0,0.0,0.0,0.0
+MedHallu,Baseline: answer length (LR),AMBER,160,25.72,42,26.25,0.0,0.0,0.0
+MedHallu,Baseline: answer length (LR),RED,462,74.28,267,57.79,0.0,0.0,0.0
+MedHallu,Baseline: answer length (LGB),GREEN,186,29.9,42,22.58,13.59,29.9,0.545
+MedHallu,Baseline: answer length (LGB),AMBER,173,27.81,76,43.93,0.0,0.0,0.0
+MedHallu,Baseline: answer length (LGB),RED,263,42.28,191,72.62,0.0,0.0,0.0

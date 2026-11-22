@@ -1,0 +1,41 @@
+source,rank,pos_feature_predicts_hallucination,pos_coef,neg_feature_predicts_truth,neg_coef
+Med-HALT,1,fictional,4.4003,cell,-2.0871
+Med-HALT,2,our,3.4529,or,-1.8367
+Med-HALT,3,quantum,3.1266,by,-1.639
+Med-HALT,4,conclusion our,3.0363,at,-1.5074
+Med-HALT,5,cosmic,2.8418,were,-1.4944
+Med-HALT,6,our study,2.72,from,-1.4913
+Med-HALT,7,the potential,2.5401,are,-1.4772
+Med-HALT,8,potential of,2.4793,was,-1.4761
+Med-HALT,9,conclusion,2.4585,cells,-1.3368
+Med-HALT,10,we,2.4198,data,-1.1558
+Med-HALT,11,background,2.3786,clinical,-1.115
+Med-HALT,12,potential,2.1164,patient,-1.054
+Med-HALT,13,study we,2.0257,with,-1.0428
+Med-HALT,14,study,1.9306,is,-1.038
+Med-HALT,15,whimsical,1.9277,and,-1.0275
+Med-HALT,16,background the,1.9022,after,-1.0143
+Med-HALT,17,impact,1.8774,expression,-1.0053
+Med-HALT,18,explored,1.8409,both,-0.9636
+Med-HALT,19,interdimensional,1.8356,analysis,-0.9205
+Med-HALT,20,explored the,1.7969,not,-0.9162
+MedHallu,1,significantly,4.4969,be,-3.9861
+MedHallu,2,due to,2.7919,may,-3.675
+MedHallu,3,due,2.7919,not,-2.9665
+MedHallu,4,compared to,2.2248,was,-2.7737
+MedHallu,5,particularly,2.0961,or,-2.5724
+MedHallu,6,significant,1.899,this,-2.5458
+MedHallu,7,rather than,1.6589,we,-2.2355
+MedHallu,8,rather,1.6249,an,-2.2253
+MedHallu,9,rates,1.568,and,-1.9728
+MedHallu,10,indicating,1.4979,should,-1.8887
+MedHallu,11,risk of,1.2492,results,-1.8561
+MedHallu,12,through,1.2125,our,-1.7689
+MedHallu,13,compared,1.155,that,-1.6561
+MedHallu,14,the risk,1.1364,further,-1.5787
+MedHallu,15,alone,1.1291,of the,-1.5506
+MedHallu,16,primarily,1.1083,the,-1.5064
+MedHallu,17,shown,1.0773,for,-1.4782
+MedHallu,18,leading to,1.0659,to be,-1.456
+MedHallu,19,higher,1.02,could,-1.4527
+MedHallu,20,as it,1.0081,important,-1.4417

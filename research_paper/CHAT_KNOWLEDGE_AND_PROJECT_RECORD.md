@@ -298,3 +298,9 @@ To guarantee 100% project recall even if windows are closed or rebooted:
 | **High-Resolution Figures** | `f:\cliniguard\research_paper\figures\` | 8 publication PNG charts (200 DPI). |
 | **Dataset Forensic Audit Report** | [`f:\cliniguard\research_paper\DATASET_AUDIT_FINAL.md`](file:///f:/cliniguard/research_paper/DATASET_AUDIT_FINAL.md) | Forensic audit of candidate datasets & synthetic artifacts. |
 | **Verified Metrics & Results** | `f:\cliniguard\research_paper\results\` | JSON & CSV files storing locked metrics. |
+
+---
+
+## 14. CORRECTION NOTICE (November 18, 2026)
+
+Several statements earlier in this record are superseded by an evidence audit of the raw result files. Treat the paper RESEARCH_PAPER_CLINIGUARD.md and the README findings as authoritative: 0.936 transfer AUROC was one model in one direction only (LightGBM: 0.713 / 0.549); the 83.8% GREEN / 0.5% RED NIH figures came from a model with 0.479 AUROC on that task and are not evidence of detection; the 'synthetic artifacts' were created by our own earlier loaders, not by the public datasets; Med-ISP is dominated by substring matches; hardware/software details are those in results/environment.json (Python 3.8.10, scikit-learn 1.3.2, LightGBM 4.6.0); the '35 s' runtime and 'Python 3.11 / 16 GB' claims were unverified and removed.

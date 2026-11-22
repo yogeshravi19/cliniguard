@@ -1,4 +1,4 @@
-# CliniGuard Research Paper Repository
+﻿# CliniGuard Research Paper Repository
 
 This directory contains the complete, self-contained research paper deliverables for **CliniGuard**. It is isolated from the application codebase to preserve system stability.
 
@@ -49,11 +49,12 @@ All generated metrics are saved to `results/` and figures to `figures/`.
 
 ---
 
-## Key Experimental Findings
+## Key Experimental Findings (corrected November 2026)
 
-1. **Benchmark Integrity**: Pervasive synthetic sentence injections were uncovered in PubMedQA, MedQuAD, MedQuAD XML, and MedHall-Bench. Evaluating models on these contaminated sets yields artificially inflated scores. They have been formally excluded.
-2. **Verified Genuine Accuracy**: On the 6,914-sample genuine benchmark pool (Med-HALT and MedHallu across 5,817 unique questions), CliniGuard (LightGBM) achieves **0.922 ± 0.005 AUROC** and **0.910 ± 0.006 AP**, significantly outperforming linear models ($p < 0.001$) and neural MLPs ($p = 0.003$).
-3. **Question-Grouped 5-Fold Cross-Validation**: With zero question leakage across folds, CliniGuard maintains **0.923 ± 0.009 AUROC**.
-4. **The TF-IDF Paradox**: While a surface TF-IDF n-gram baseline achieves 0.993 AUROC within-distribution by exploiting dataset-specific phrasing, it completely collapses to **0.397 AUROC** under zero-shot cross-dataset transfer. In contrast, CliniGuard's linguistic features achieve **0.936 AUROC** across domains.
-5. **Actionable Clinical Stratification**: The calibrated **GREEN band (<0.35)** reduces error rate to **9.9%** (relative to a 43.2% base rate), while the **RED band (>0.65)** concentrates hallucinated answers at **88.2%**.
-6. **Inference Latency**: Single-core CPU latency averages **15.1 ms** end-to-end.
+1. **Pooled in-distribution result:** On 6,914 items (Med-HALT + MedHallu) LightGBM reaches 0.922 +/- 0.005 AUROC (10 splits) and 0.923 +/- 0.009 (question-grouped CV).
+2. **The pooled number hides a large gap:** 0.976 AUROC on Med-HALT (positives are overtly fabricated papers) versus 0.683 on MedHallu, where answer length alone scores 0.745.
+3. **Transfer is inconsistent:** LightGBM 0.713 / 0.549 across the two directions; TF-IDF drops from 0.993 to 0.397. No claim of robust generalization is made.
+4. **One signal dominates:** dropping CDT costs 0.115 AUROC; CDT alone reaches 0.817. Its sign differs between the hallucination benchmarks and the NIH topic-mismatch check (zero-shot LightGBM AUROC 0.479).
+5. **Med-ISP is mostly substring noise:** 93% of its hits are not whole-word lexicon matches; whole-word matching lowers its single-signal AUROC from 0.649 to 0.549.
+6. **Tiers depend on prevalence:** 88% RED precision holds at the benchmark base rate (43%); at an assumed 10% prevalence it would be about 52% (illustrative).
+7. **Not done:** live LLM outputs, clinician labels, comparison with published detectors.
