@@ -316,12 +316,18 @@ FEATURES = ["med_isp", "c_aas", "med_eem", "cdt"]
 
 def extract_features(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
+    if "_answer" not in df.columns and "answer" in df.columns:
+        df["_answer"] = df["answer"].fillna("").astype(str)
+    if "_question" not in df.columns and "question" in df.columns:
+        df["_question"] = df["question"].fillna("").astype(str)
     df["med_isp"] = df["_answer"].apply(med_isp)
     df["c_aas"]   = df["_answer"].apply(c_aas)
     df["med_eem"] = df["_answer"].apply(med_eem)
     df["cdt"]     = df.apply(lambda r: cdt(r["_answer"], r["_question"]), axis=1)
     df["task"]    = df["_question"].apply(classify_task)
     df["task_score"] = df.apply(task_score, axis=1)
+    if "length" not in df.columns:
+        df["length"] = df["_answer"].apply(lambda a: len(tokenize(a)))
     return df
 
 def risk_label(score: float) -> str:
