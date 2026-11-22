@@ -1,0 +1,7 @@
+Dataset_Name,Local_Path,File_Format,File_Size_Bytes,SHA256_Prefix,Total_Rows,Label_0_Rows,Label_1_Rows,Unique_Questions,Duplicate_Questions,Has_Native_Hallucination_Labels,Role_in_Project,Verification_Status
+Med-HALT,data_extraction\Med-HALT\medhalt.parquet,parquet,5222639,f58b8e77f6441369,4914,2925,1989,4817,97,True,Primary Benchmark 1 (Included),VERIFIED_GENUINE
+MedHallu,data_extraction\MedHallu\medhallu.parquet,parquet,1094799,8b68acbbae38d2dd,2000,1000,1000,1000,1000,True,Primary Benchmark 2 (Included),VERIFIED_GENUINE
+PubMedQA,data_extraction\pubmedqa\pubmedqa.parquet,parquet,928645,b58e4f4e52787c8b,1000,666,334,1000,0,False,Excluded (No native hallucination annotations),VERIFIED_TASK_RESTRICTED
+MedQuAD,data_extraction\medquad\medquad.parquet,parquet,9342818,640c5df42ba998d8,47441,31627,15814,44603,2838,False,Secondary (Pillar 2 Synthetic Topic Mismatch Check),VERIFIED_TASK_RESTRICTED
+MedQuAD XML,data_extraction\github\github.parquet,parquet,78866,663abd53a89f8a27,107,83,24,75,32,False,Excluded (Subset duplicate of MedQuAD),VERIFIED_TASK_RESTRICTED
+MedHall-Bench,data_extraction\medhall_bench\medhall_bench.parquet,parquet,17674,3efa4ff9afbcaf75,54,27,27,27,27,False,Excluded (Rubric prompts without paired model outputs),VERIFIED_TASK_RESTRICTED

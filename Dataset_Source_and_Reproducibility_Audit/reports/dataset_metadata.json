@@ -1,0 +1,248 @@
+{
+  "Med-HALT": {
+    "name": "Med-HALT",
+    "local_path": "data_extraction\\Med-HALT\\medhalt.parquet",
+    "source_repo": "openlifescienceai/Med-HALT",
+    "task_type": "Biomedical Hallucination Benchmark",
+    "file_size_bytes": 5222639,
+    "sha256": "f58b8e77f6441369dba039716836e0b536c6d7ff0054577241bb50face3843b1",
+    "total_rows": 4914,
+    "columns": [
+      "question",
+      "context",
+      "answer",
+      "label"
+    ],
+    "label_distribution": {
+      "0": 2925,
+      "1": 1989
+    },
+    "unique_questions": 4817,
+    "has_null_values": false,
+    "null_breakdown": {
+      "question": 0,
+      "context": 0,
+      "answer": 0,
+      "label": 0
+    },
+    "native_hallucination_annotations": true,
+    "project_role": "Primary Benchmark 1 (Included)"
+  },
+  "MedHallu": {
+    "name": "MedHallu",
+    "local_path": "data_extraction\\MedHallu\\medhallu.parquet",
+    "source_repo": "FreedomIntelligence/MedHallu",
+    "task_type": "Clinical Question Answering Hallucination",
+    "file_size_bytes": 1094799,
+    "sha256": "8b68acbbae38d2dda38881bc7da3985054e59ec5b2f521e59f5203b5dda36c0a",
+    "total_rows": 2000,
+    "columns": [
+      "question",
+      "context",
+      "answer",
+      "label"
+    ],
+    "label_distribution": {
+      "0": 1000,
+      "1": 1000
+    },
+    "unique_questions": 1000,
+    "has_null_values": false,
+    "null_breakdown": {
+      "question": 0,
+      "context": 0,
+      "answer": 0,
+      "label": 0
+    },
+    "native_hallucination_annotations": true,
+    "project_role": "Primary Benchmark 2 (Included)"
+  },
+  "PubMedQA": {
+    "id": "D04",
+    "official_name": "PubMedQA",
+    "repo_id_or_url": "pubmed_qa (qiaojin/PubMedQA)",
+    "authors_publication": "Jin et al., EMNLP 2019",
+    "task_type": "Biomedical Research Literature QA",
+    "configs_splits": "pqa_labeled (1,000 annotated QA pairs)",
+    "record_count": "1,000 QA pairs",
+    "license": "MIT",
+    "local_storage": "data_extraction/pubmedqa/pubmedqa.parquet",
+    "status": "LOCAL_VERIFIED_EXCLUDED",
+    "relevance": "Excluded from primary hallucination pool (lacks native error labels)."
+  },
+  "MedQuAD": {
+    "name": "MedQuAD",
+    "local_path": "data_extraction\\medquad\\medquad.parquet",
+    "source_repo": "lavita/MedQuAD (NIH)",
+    "task_type": "Consumer Health Question Answering",
+    "file_size_bytes": 9342818,
+    "sha256": "640c5df42ba998d83a57e56b5e66fed9c565f22060a9d573324c8ec682fe2af3",
+    "total_rows": 47441,
+    "columns": [
+      "question",
+      "context",
+      "answer",
+      "label"
+    ],
+    "label_distribution": {
+      "0": 31627,
+      "1": 15814
+    },
+    "unique_questions": 44603,
+    "has_null_values": false,
+    "null_breakdown": {
+      "question": 0,
+      "context": 0,
+      "answer": 0,
+      "label": 0
+    },
+    "native_hallucination_annotations": false,
+    "project_role": "Secondary (Pillar 2 Synthetic Topic Mismatch Check)"
+  },
+  "MedQuAD XML": {
+    "name": "MedQuAD XML",
+    "local_path": "data_extraction\\github\\github.parquet",
+    "source_repo": "abachaa/MedQuAD (GitHub)",
+    "task_type": "NIH XML-Parsed QA",
+    "file_size_bytes": 78866,
+    "sha256": "663abd53a89f8a275d5f7f1bb63b022f168d80085d9ab9ecf7c3ee3e5f6a6a9d",
+    "total_rows": 107,
+    "columns": [
+      "question",
+      "context",
+      "answer",
+      "label"
+    ],
+    "label_distribution": {
+      "0": 83,
+      "1": 24
+    },
+    "unique_questions": 75,
+    "has_null_values": false,
+    "null_breakdown": {
+      "question": 0,
+      "context": 0,
+      "answer": 0,
+      "label": 0
+    },
+    "native_hallucination_annotations": false,
+    "project_role": "Excluded (Subset duplicate of MedQuAD)"
+  },
+  "MedHall-Bench": {
+    "id": "D06",
+    "official_name": "MedHall-Bench",
+    "repo_id_or_url": "MedHall-Bench (Local Rubric)",
+    "authors_publication": "Internal Evaluation Harness, 2026",
+    "task_type": "Agent Clinical Hallucination Rubric",
+    "configs_splits": "54 scenario prompt rubrics",
+    "record_count": "54 evaluation scenarios",
+    "license": "Proprietary",
+    "local_storage": "data_extraction/medhall_bench/medhall_bench.parquet",
+    "status": "LOCAL_VERIFIED_EXCLUDED",
+    "relevance": "Excluded (Evaluation rubrics without paired model output text)."
+  },
+  "Med-HALT (Medical Hallucination Test)": {
+    "id": "D01",
+    "official_name": "Med-HALT (Medical Hallucination Test)",
+    "repo_id_or_url": "openlifescienceai/Med-HALT",
+    "authors_publication": "Umapathi et al., CoNLL 2023",
+    "task_type": "Biomedical Hallucination Benchmark (Reasoning & Memory)",
+    "configs_splits": "IR_abstract2pubmedlink (train/test)",
+    "record_count": "4,914 usable (1,989 fake / 2,925 real)",
+    "license": "Apache 2.0",
+    "local_storage": "data_extraction/Med-HALT/medhalt.parquet",
+    "status": "LOCAL_VERIFIED_PRIMARY",
+    "relevance": "Primary benchmark for medical hallucination evaluation."
+  },
+  "MedHallu (Multi-Category Clinical Hallucination)": {
+    "id": "D02",
+    "official_name": "MedHallu (Multi-Category Clinical Hallucination)",
+    "repo_id_or_url": "FreedomIntelligence/MedHallu",
+    "authors_publication": "FreedomIntelligence, 2025",
+    "task_type": "Clinical Question Answering Hallucination Detection",
+    "configs_splits": "pqa_labeled (1,000 paired questions)",
+    "record_count": "2,000 usable (1,000 hallucinated / 1,000 ground truth)",
+    "license": "Research Only",
+    "local_storage": "data_extraction/MedHallu/medhallu.parquet",
+    "status": "LOCAL_VERIFIED_PRIMARY",
+    "relevance": "Primary clinical benchmark with expert-annotated errors."
+  },
+  "MedQuAD (Medical Question Answering Dataset)": {
+    "id": "D03",
+    "official_name": "MedQuAD (Medical Question Answering Dataset)",
+    "repo_id_or_url": "lavita/MedQuAD (NIH / NLM)",
+    "authors_publication": "Ben Abacha & Demner-Fushman, AMIA 2019",
+    "task_type": "Consumer Health Question Answering (12 NIH Institutes)",
+    "configs_splits": "full (47,441 QA pairs across 37 specialities)",
+    "record_count": "47,441 QA pairs",
+    "license": "Public Domain (NIH)",
+    "local_storage": "data_extraction/medquad/medquad.parquet",
+    "status": "LOCAL_VERIFIED_TASK_RESTRICTED",
+    "relevance": "Used for Pillar 2 Cross-Specialty Topic Mismatch Drift Check."
+  },
+  "MedQuAD GitHub XML Mirror": {
+    "id": "D05",
+    "official_name": "MedQuAD GitHub XML Mirror",
+    "repo_id_or_url": "abachaa/MedQuAD (GitHub)",
+    "authors_publication": "Ben Abacha, 2019",
+    "task_type": "NIH Consumer Health QA (Raw XML files)",
+    "configs_splits": "XML parsed subset (107 items)",
+    "record_count": "107 QA pairs",
+    "license": "Public Domain",
+    "local_storage": "data_extraction/github/github.parquet",
+    "status": "LOCAL_VERIFIED_EXCLUDED",
+    "relevance": "Excluded (Duplicate subset of MedQuAD)."
+  },
+  "MedQA-USMLE (4-Options)": {
+    "id": "D07",
+    "official_name": "MedQA-USMLE (4-Options)",
+    "repo_id_or_url": "GBaker/MedQA-USMLE-4-options",
+    "authors_publication": "Jin et al., Applied Clinical Informatics 2021",
+    "task_type": "US Medical Licensing Examination (USMLE) QA",
+    "configs_splits": "train (10,178), dev (1,272), test (1,273)",
+    "record_count": "12,723 exam questions",
+    "license": "MIT",
+    "local_storage": "Dataset_Source_and_Reproducibility_Audit/datasets/medqa_sample.parquet",
+    "status": "REMOTE_VERIFIED_SAMPLE_CACHED",
+    "relevance": "Foundational medical QA benchmark (Med-PaLM baseline)."
+  },
+  "MedMCQA (Multi-Subject Medical MCQ)": {
+    "id": "D08",
+    "official_name": "MedMCQA (Multi-Subject Medical MCQ)",
+    "repo_id_or_url": "medmcqa",
+    "authors_publication": "Pal et al., PMLR / CHIL 2022",
+    "task_type": "Indian Medical Entrance Examinations (AIIMS / NEET-PG)",
+    "configs_splits": "train (182,822), dev (4,183), test (6,150)",
+    "record_count": "193,155 entrance questions across 21 medical subjects",
+    "license": "Apache 2.0",
+    "local_storage": "Dataset_Source_and_Reproducibility_Audit/datasets/medmcqa_sample.parquet",
+    "status": "REMOTE_VERIFIED_SAMPLE_CACHED",
+    "relevance": "High-difficulty multi-specialty clinical reasoning benchmark."
+  },
+  "MMLU Medical & Clinical Knowledge Suite": {
+    "id": "D09",
+    "official_name": "MMLU Medical & Clinical Knowledge Suite",
+    "repo_id_or_url": "cais/mmlu (clinical_knowledge, professional_medicine)",
+    "authors_publication": "Hendrycks et al., ICLR 2021",
+    "task_type": "Clinical & Professional Medical Examination QA",
+    "configs_splits": "test (265 clinical / 272 prof_med)",
+    "record_count": "537 medical exam questions",
+    "license": "MIT",
+    "local_storage": "Dataset_Source_and_Reproducibility_Audit/datasets/mmlu_clinical_sample.parquet",
+    "status": "REMOTE_VERIFIED_SAMPLE_CACHED",
+    "relevance": "Standard benchmark for medical capability and hallucination probing."
+  },
+  "TruthfulQA (Health / Medical Category)": {
+    "id": "D10",
+    "official_name": "TruthfulQA (Health / Medical Category)",
+    "repo_id_or_url": "truthful_qa (generation task)",
+    "authors_publication": "Lin et al., ACL 2022",
+    "task_type": "Adversarial Truthfulness & Misconceptions (Health/Med)",
+    "configs_splits": "validation (817 total questions, 153 Health/Medicine)",
+    "record_count": "153 medical misconception questions",
+    "license": "Apache 2.0",
+    "local_storage": "Dataset_Source_and_Reproducibility_Audit/datasets/truthfulqa_health_sample.parquet",
+    "status": "REMOTE_VERIFIED_SAMPLE_CACHED",
+    "relevance": "Tests whether models hallucinate common medical and health falsehoods."
+  }
+}
