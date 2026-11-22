@@ -1,0 +1,4 @@
+condition,tfidf_auroc_mean,tfidf_auroc_sd
+Original Med-HALT,0.9999996184414861,8.531907745138791e-07
+Stripped Headers & Fictional Tokens,0.9999977106489165,2.487457181602769e-06
+Stripped + Length-Matched (125 words),0.9999977106489165,3.134823076118881e-06
