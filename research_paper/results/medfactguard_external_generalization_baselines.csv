@@ -1,0 +1,7 @@
+Target,Model,AUROC,AP,F1,Accuracy
+PlaceboBench (RAG),TF-IDF + Logistic Regression,0.4749,0.4467,0.5723,0.4295
+PlaceboBench (RAG),TF-IDF + LightGBM,0.4322,0.415,0.5451,0.4564
+PlaceboBench (RAG),Answer Length (LR),0.3208,0.3651,0.1566,0.4191
+MedExpert (Chatbot),TF-IDF + Logistic Regression,0.5281,0.2828,0.2353,0.6591
+MedExpert (Chatbot),TF-IDF + LightGBM,0.5524,0.2966,0.2051,0.6748
+MedExpert (Chatbot),Answer Length (LR),0.4242,0.2289,0.0,0.7273
