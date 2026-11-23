@@ -170,52 +170,47 @@ def load_medhalt():
     print(f"  -> Med-HALT loaded: {len(df)} rows | Factual: {sum(df['label']==0)}, Hallucinated: {sum(df['label']==1)}")
     return df
 
-def load_medhal_sample(n_samples=10000, seed=42):
+def load_medhal_sample(n_samples=25000, seed=42):
     """
     MedHal (LAMA-WeST/medhal-lf_qafil_bal)
-    Streams and samples n_samples balanced across factual and hallucinated statements.
+    Downloads shard 0 and extracts exactly n_samples balanced across factual and hallucinated statements.
     """
     cache_file = os.path.join(CACHE_DIR, f'medhal_sample_{n_samples}.parquet')
     if os.path.exists(cache_file):
         return pd.read_parquet(cache_file)
         
-    print(f"[MedFactGuard] Sampling {n_samples} balanced records from MedHal (LAMA-WeST/medhal-lf_qafil_bal)...")
-    ds = load_dataset('LAMA-WeST/medhal-lf_qafil_bal', split='train', streaming=True)
+    print(f"[MedFactGuard] Extracting {n_samples} balanced records from MedHal (LAMA-WeST/medhal-lf_qafil_bal)...")
+    from huggingface_hub import hf_hub_download
+    shard_path = hf_hub_download(
+        repo_id='LAMA-WeST/medhal-lf_qafil_bal',
+        filename='data/train-00000-of-00005.parquet',
+        repo_type='dataset'
+    )
+    raw = pd.read_parquet(shard_path)
     
-    factual_rows = []
-    hallucinated_rows = []
     target_each = n_samples // 2
+    factual_df = raw[raw['label'] == True].head(target_each).copy()
+    hallucinated_df = raw[raw['label'] == False].head(target_each).copy()
     
-    for item in ds:
-        # label == True -> Factual (0); label == False -> Hallucinated (1)
-        is_factual = bool(item.get('label', True))
-        bin_label = 0 if is_factual else 1
-        
-        row_dict = {
-            'question': safe_str(item.get('explanation', '')[:100]),
-            'context': safe_str(item.get('context', '')),
-            'generated_answer': safe_str(item.get('statement', '')),
-            'label': bin_label,
-            'dataset_name': 'MedHal',
-            'group_id': safe_str(item.get('id', '')),
-            'annotation_type': safe_str(item.get('source', 'medhal'))
-        }
-        
-        if bin_label == 0 and len(factual_rows) < target_each:
-            factual_rows.append(row_dict)
-        elif bin_label == 1 and len(hallucinated_rows) < target_each:
-            hallucinated_rows.append(row_dict)
-            
-        if len(factual_rows) >= target_each and len(hallucinated_rows) >= target_each:
-            break
-            
-    df = pd.DataFrame(factual_rows + hallucinated_rows)
-    df = df.sample(frac=1.0, random_state=seed).reset_index(drop=True)
+    combined = pd.concat([factual_df, hallucinated_df], ignore_index=True)
+    combined = combined.sample(frac=1.0, random_state=seed).reset_index(drop=True)
+    
+    # Map to unified schema
+    df = pd.DataFrame({
+        'question': combined['explanation'].fillna('').apply(lambda x: safe_str(x)[:120]),
+        'context': combined['context'].fillna('').apply(safe_str),
+        'generated_answer': combined['statement'].fillna('').apply(safe_str),
+        'label': (~combined['label']).astype(int), # True -> 0 (Factual), False -> 1 (Hallucinated)
+        'dataset_name': 'MedHal',
+        'group_id': combined['id'].fillna('').apply(safe_str),
+        'annotation_type': combined['source'].fillna('medhal').apply(safe_str)
+    })
+    
     df.to_parquet(cache_file, index=False)
-    print(f"  -> MedHal sampled: {len(df)} rows | Factual: {sum(df['label']==0)}, Hallucinated: {sum(df['label']==1)}")
+    print(f"  -> MedHal balanced sample ready: {len(df)} rows | Factual: {sum(df['label']==0)}, Hallucinated: {sum(df['label']==1)}")
     return df
 
-def load_harmonized_benchmark_suite(include_medhal=True, medhal_n=5000):
+def load_harmonized_benchmark_suite(include_medhal=True, medhal_n=25000):
     """
     Loads all datasets harmonized into a single multi-source corpus.
     Separates into:
@@ -249,5 +244,5 @@ def load_harmonized_benchmark_suite(include_medhal=True, medhal_n=5000):
     }
 
 if __name__ == '__main__':
-    data = load_harmonized_benchmark_suite(include_medhal=True, medhal_n=2000)
+    data = load_harmonized_benchmark_suite(include_medhal=True, medhal_n=25000)
     print("\nDataset loader self-test completed successfully!")

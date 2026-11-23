@@ -20,7 +20,7 @@ RESULTS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'research
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
 def run_baseline_evaluation():
-    data = load_harmonized_benchmark_suite(include_medhal=True, medhal_n=2000)
+    data = load_harmonized_benchmark_suite(include_medhal=True, medhal_n=25000)
     
     # 1. Training Pool: Med-HALT (4,914) + MedHallu (2,000) + MedHal (2,000) = 8,914 samples
     df_train_pool = data['train_pool'].copy().reset_index(drop=True)
